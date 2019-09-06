@@ -1,6 +1,6 @@
 package ru.biderman.studenttest.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ru.biderman.studenttest.domain.Answer;
 import ru.biderman.studenttest.domain.Question;
 import ru.biderman.studenttest.domain.VariantAnswer;
@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestServiceImplTest {
+class TestServiceImplTest {
 
     private TestService createTestService(String userName, List<Question> questions, List<Answer> answers) {
         NameService nameService = mock(NameService.class);
@@ -33,7 +33,7 @@ public class TestServiceImplTest {
     }
 
     @Test
-    public void test1() {
+    void test1() {
         Question question1 = new VariantQuestion("Тестовый вопрос 1", Arrays.asList("1", "2"), 2);
         Question question2 = new VariantQuestion("Тестовый вопрос 2", Arrays.asList("1", "2"), 2);
 
@@ -45,7 +45,7 @@ public class TestServiceImplTest {
     }
 
     @Test
-    public void testCanceled() {
+    void testCanceled() {
         Question question1 = new VariantQuestion("Тестовый вопрос 1", Arrays.asList("1", "2"), 2);
         Question question2 = new VariantQuestion("Тестовый вопрос 2", Arrays.asList("1", "2"), 2);
 
@@ -57,7 +57,7 @@ public class TestServiceImplTest {
     }
 
     @Test
-    public void testNameCanceled() {
+    void testNameCanceled() {
         TestService testService = createTestService(null,
                 Collections.emptyList(),
                 Collections.emptyList());

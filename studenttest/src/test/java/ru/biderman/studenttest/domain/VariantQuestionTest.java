@@ -1,14 +1,14 @@
 package ru.biderman.studenttest.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class VariantQuestionTest {
+class VariantQuestionTest {
 
     @Test
-    public void checkAnswer() {
+    void checkAnswer() {
         Question question = new VariantQuestion("Тестовый вопрос", null, 1);
         assertTrue(question.checkAnswer(new VariantAnswer(1)));
         assertFalse(question.checkAnswer(new VariantAnswer(2)));

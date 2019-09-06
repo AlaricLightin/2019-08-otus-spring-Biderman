@@ -1,13 +1,13 @@
 package ru.biderman.studenttest.service;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class VariantAnswerInputCheckerTest {
+class VariantAnswerInputCheckerTest {
 
     @Test
-    public void createVariantAnswerValue() {
+    void createVariantAnswerValue() {
         VariantAnswerInputChecker value1 = new VariantAnswerInputChecker("1", 2);
         assertTrue(value1.getResult().isPresent());
         assertFalse(value1.getCheckError().isPresent());

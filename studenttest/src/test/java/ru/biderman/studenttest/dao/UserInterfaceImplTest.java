@@ -1,17 +1,17 @@
 package ru.biderman.studenttest.dao;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserInterfaceImplTest {
+class UserInterfaceImplTest {
 
     private UserInterfaceStreams createMockUIStreams(String inputString, ByteArrayOutputStream outputStream) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(inputString.getBytes());
@@ -49,7 +49,7 @@ public class UserInterfaceImplTest {
     }
 
     @Test
-    public void readValueSimple() {
+    void readValueSimple() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         UserInterfaceStreams userInterfaceStreams = createMockUIStreams("1", outputStream);
         UserInterface userInterface = new UserInterfaceImpl(userInterfaceStreams);
@@ -62,7 +62,7 @@ public class UserInterfaceImplTest {
     }
 
     @Test
-    public void readValueExit() {
+    void readValueExit() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         UserInterfaceStreams userInterfaceStreams = createMockUIStreams("q", outputStream);
         UserInterface userInterface = new UserInterfaceImpl(userInterfaceStreams);
@@ -74,7 +74,7 @@ public class UserInterfaceImplTest {
     }
 
     @Test
-    public void errorEnterAndExit() {
+    void errorEnterAndExit() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         UserInterfaceStreams userInterfaceStreams = createMockUIStreams("2\nq", outputStream);
         UserInterface userInterface = new UserInterfaceImpl(userInterfaceStreams);
@@ -87,7 +87,7 @@ public class UserInterfaceImplTest {
     }
 
     @Test
-    public void errorAndRightAnswer() {
+    void errorAndRightAnswer() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         UserInterfaceStreams userInterfaceStreams = createMockUIStreams("2\n1", outputStream);
         UserInterface userInterface = new UserInterfaceImpl(userInterfaceStreams);
