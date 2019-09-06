@@ -1,10 +1,13 @@
 package ru.biderman.studenttest.dao;
 
+import org.springframework.stereotype.Service;
+
 import java.io.PrintStream;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.Function;
 
+@Service
 public class UserInterfaceImpl implements UserInterface {
     private final PrintStream printStream;
     private final Scanner scanner;

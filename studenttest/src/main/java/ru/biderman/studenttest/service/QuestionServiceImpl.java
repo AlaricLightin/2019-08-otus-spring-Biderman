@@ -1,5 +1,6 @@
 package ru.biderman.studenttest.service;
 
+import org.springframework.stereotype.Service;
 import ru.biderman.studenttest.dao.QuestionDao;
 import ru.biderman.studenttest.domain.Question;
 
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Service
 public class QuestionServiceImpl implements QuestionService {
     private final QuestionDao questionDao;
 

@@ -1,5 +1,6 @@
 package ru.biderman.studenttest.service;
 
+import org.springframework.stereotype.Service;
 import ru.biderman.studenttest.dao.UserInterface;
 import ru.biderman.studenttest.domain.Answer;
 import ru.biderman.studenttest.domain.Question;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class AnswerServiceImpl implements AnswerService {
     private final UserInterface userInterface;
 

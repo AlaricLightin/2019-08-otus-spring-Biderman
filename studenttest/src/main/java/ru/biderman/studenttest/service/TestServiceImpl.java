@@ -1,11 +1,13 @@
 package ru.biderman.studenttest.service;
 
+import org.springframework.stereotype.Service;
 import ru.biderman.studenttest.domain.Answer;
 import ru.biderman.studenttest.domain.Question;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class TestServiceImpl implements TestService{
     private static final String CANCELED = "Тестирование прервано пользователем.";
     private static final String INTERNAL_ERROR = "Ошибка системы тестирования. Пожалуйста, обратитесь к разработчику.";
