@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.LocalizedResourceHelper;
 import org.springframework.stereotype.Repository;
 import ru.biderman.studenttest.domain.Question;
 import ru.biderman.studenttest.domain.VariantQuestion;
@@ -19,33 +20,36 @@ import java.util.stream.Collectors;
 @PropertySource("classpath:application.properties")
 @Repository
 public class QuestionDaoImpl implements QuestionDao {
-    private final List<Question> questions;
+    private final static String EXTENSION = ".csv";
+    private final String resourceFilePrefix;
+    private final Locale locale;
+    private List<Question> questions = null;
 
-    QuestionDaoImpl(@Value("${questions.path}") Resource questionsResource) {
-        questions = loadQuestions(questionsResource);
+    QuestionDaoImpl(@Value("${questions.file-prefix}") String resourceFilePrefix,
+                    @Value("${user-interface.locale}") Locale locale) {
+        this.resourceFilePrefix = resourceFilePrefix;
+        this.locale = locale;
     }
 
-    private List<Question> loadQuestions(Resource questionsResource) {
-        List<CSVRecord> recordList = null;
+    private Resource getResource() {
+        LocalizedResourceHelper helper = new LocalizedResourceHelper();
+        return helper.findLocalizedResource(resourceFilePrefix, EXTENSION, locale);
+    }
+
+    private List<Question> loadQuestions(Resource questionsResource) throws QuestionReadingException {
         try (
                 InputStream inputStream = questionsResource.getInputStream()
         )
         {
             CSVParser csvParser = CSVParser.parse(inputStream, StandardCharsets.UTF_8, CSVFormat.DEFAULT);
-            recordList = csvParser.getRecords();
-        }
-        catch (IOException e) {
-            System.out.println("Не удалось прочитать файл с вопросами.");
-            e.printStackTrace();
-        }
-
-        if (recordList != null)
-            return recordList.stream()
+            return csvParser.getRecords().stream()
                     .map(this::getQuestion)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-        else
-            return Collections.emptyList();
+        }
+        catch (IOException e) {
+            throw new QuestionReadingException(e);
+        }
     }
 
     private Question getQuestion(CSVRecord csvRecord) {
@@ -69,10 +73,17 @@ public class QuestionDaoImpl implements QuestionDao {
     }
 
     @Override
-    public Optional<Question> getQuestion(int num) {
+    public Question getQuestion(int num) throws QuestionDaoException{
+        if (questions == null) {
+            synchronized (this) {
+                if(questions == null)
+                    questions = loadQuestions(getResource());
+            }
+        }
+
         if (num >= 0 && num < questions.size())
-            return Optional.of(questions.get(num));
+            return questions.get(num);
         else
-            return Optional.empty();
+            throw new QuestionNotFoundException();
     }
 }

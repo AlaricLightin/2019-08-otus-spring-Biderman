@@ -1,4 +1,4 @@
-package ru.biderman.studenttest.dao;
+package ru.biderman.studenttest.userinputoutput;
 
 import org.springframework.stereotype.Service;
 

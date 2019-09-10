@@ -1,10 +1,10 @@
 package ru.biderman.studenttest.service;
 
-public interface TestService {
+interface TestService {
     /**
      * Основная процедура тестирования
      * @param questionCount количество вопросов
-     * @return результат тестирования в виде строки
+     * @return количество правильных ответов
      */
-    String test(int questionCount);
+    int test(int questionCount) throws NotEnoughQuestionException, TestCanceledException;
 }

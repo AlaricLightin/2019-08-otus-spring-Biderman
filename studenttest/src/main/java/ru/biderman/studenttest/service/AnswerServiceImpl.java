@@ -1,10 +1,12 @@
 package ru.biderman.studenttest.service;
 
 import org.springframework.stereotype.Service;
-import ru.biderman.studenttest.dao.UserInterface;
 import ru.biderman.studenttest.domain.Answer;
 import ru.biderman.studenttest.domain.Question;
 import ru.biderman.studenttest.domain.VariantAnswer;
+import ru.biderman.studenttest.domain.VariantQuestion;
+import ru.biderman.studenttest.userinputoutput.UserInterface;
+import ru.biderman.studenttest.userinputoutput.VariantAnswerInputUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.Optional;
 public class AnswerServiceImpl implements AnswerService {
     private final UserInterface userInterface;
 
-    public AnswerServiceImpl(UserInterface userInterface) {
+    AnswerServiceImpl(UserInterface userInterface) {
         this.userInterface = userInterface;
     }
 
@@ -22,24 +24,13 @@ public class AnswerServiceImpl implements AnswerService {
     public List<Answer> getAnswers(List<Question> questions) {
         List<Answer> result = new ArrayList<>();
         for(int i = 0; i < questions.size(); i++) {
-            StringBuilder prompt = new StringBuilder();
-            prompt.append(String.format("Вопрос N%d", i + 1))
-                    .append(System.lineSeparator());
             Question question = questions.get(i);
-            prompt.append(question.getText())
-                    .append(System.lineSeparator());
-            for(int j = 0; j < question.getVariants().size(); j++) {
-                prompt.append(String.format("%d. %s", j + 1, question.getVariants().get(j)))
-                    .append(System.lineSeparator());
-            }
+            assert question instanceof VariantQuestion;
 
             Optional<VariantAnswer> answer = userInterface.readValue(
-                    prompt.toString(),
-                    s -> new VariantAnswerInputChecker(s, question.getVariants().size()));
+                    new VariantAnswerInputUI((VariantQuestion) question, i + 1));
 
-            if (answer.isPresent())
-                result.add(answer.get());
-            else
+            if (!answer.map(result::add).orElse(false))
                 break;
         }
         return result;
