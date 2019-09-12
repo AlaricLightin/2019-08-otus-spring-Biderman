@@ -5,6 +5,6 @@ import ru.biderman.studenttest.domain.Question;
 
 import java.util.List;
 
-public interface AnswerService {
+interface AnswerService {
     List<Answer> getAnswers(List<Question> questions);
 }
