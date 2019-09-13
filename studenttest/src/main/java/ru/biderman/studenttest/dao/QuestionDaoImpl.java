@@ -3,37 +3,39 @@ package ru.biderman.studenttest.dao;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.LocalizedResourceHelper;
 import org.springframework.stereotype.Repository;
 import ru.biderman.studenttest.domain.Question;
+import ru.biderman.studenttest.domain.UserInterfaceProperties;
 import ru.biderman.studenttest.domain.VariantQuestion;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-@PropertySource("classpath:application.properties")
 @Repository
 public class QuestionDaoImpl implements QuestionDao {
     private final static String EXTENSION = ".csv";
-    private final String resourceFilePrefix;
-    private final Locale locale;
+    private final QuestionsSourceProperties questionsSourceProperties;
+    private final UserInterfaceProperties userInterfaceProperties;
     private List<Question> questions = null;
 
-    QuestionDaoImpl(@Value("${questions.file-prefix}") String resourceFilePrefix,
-                    @Value("${user-interface.locale}") Locale locale) {
-        this.resourceFilePrefix = resourceFilePrefix;
-        this.locale = locale;
+    QuestionDaoImpl(QuestionsSourceProperties questionsSourceProperties, UserInterfaceProperties userInterfaceProperties) {
+        this.questionsSourceProperties = questionsSourceProperties;
+        this.userInterfaceProperties = userInterfaceProperties;
     }
 
     private Resource getResource() {
         LocalizedResourceHelper helper = new LocalizedResourceHelper();
-        return helper.findLocalizedResource(resourceFilePrefix, EXTENSION, locale);
+        return helper.findLocalizedResource(questionsSourceProperties.getFilePrefix(),
+                EXTENSION,
+                userInterfaceProperties.getLocale());
     }
 
     private List<Question> loadQuestions(Resource questionsResource) throws QuestionReadingException {

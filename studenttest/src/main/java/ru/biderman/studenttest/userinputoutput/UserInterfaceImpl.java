@@ -1,9 +1,8 @@
 package ru.biderman.studenttest.userinputoutput;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import ru.biderman.studenttest.domain.UserInterfaceProperties;
 import ru.biderman.studenttest.userinputoutput.exceptions.UserInputException;
 
 import java.io.PrintStream;
@@ -11,30 +10,42 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
 
-@PropertySource("classpath:application.properties")
 @Service
 public class UserInterfaceImpl implements UserInterface {
     static final String EXIT_INPUT = "q";
 
-    private final PrintStream printStream;
-    private final Scanner scanner;
     private final MessageSource messageSource;
     private final Locale locale;
+    private final UserInterfaceStreams userInterfaceStreams;
+    private Scanner scanner;
 
     UserInterfaceImpl(UserInterfaceStreams userInterfaceStreams,
-                      MessageSource messageSource,
-                      @Value("${user-interface.locale}")Locale locale) {
-        printStream = userInterfaceStreams.getPrintStream();
-        scanner = new Scanner(userInterfaceStreams.getInputStream());
+                      UserInterfaceProperties userInterfaceProperties, MessageSource messageSource) {
         this.messageSource = messageSource;
-        this.locale = locale;
+        this.locale = userInterfaceProperties.getLocale();
+        this.userInterfaceStreams = userInterfaceStreams;
+    }
+
+    private PrintStream getPrintStream() {
+        return userInterfaceStreams.getPrintStream();
+    }
+
+    private Scanner getScanner() {
+        if (scanner == null) {
+            synchronized (this) {
+                if (scanner == null)
+                    scanner = new Scanner(userInterfaceStreams.getInputStream());
+            }
+        }
+
+        return scanner;
     }
 
     @Override
     public <T> Optional<T> readValue(DataInputUI<T> dataInputUI) {
-        printStream.println(dataInputUI.getPrompt(messageSource, locale));
+        getPrintStream().println(dataInputUI.getPrompt(messageSource, locale));
         while (true) {
-            String s = scanner.nextLine();
+            String s = getScanner().nextLine();
             if(EXIT_INPUT.equals(s))
                 return Optional.empty();
 
@@ -43,7 +54,7 @@ public class UserInterfaceImpl implements UserInterface {
                 return Optional.of(result);
             }
             catch (UserInputException e) {
-                printStream.println(
+                getPrintStream().println(
                         messageSource.getMessage(e.getLocalizedMessageId(), e.getLocalizedMessageArgs(), locale));
             }
         }
@@ -51,7 +62,7 @@ public class UserInterfaceImpl implements UserInterface {
 
     @Override
     public void printText(String messageCode, Object[] args) {
-        printStream.println(
+        getPrintStream().println(
                 messageSource.getMessage(messageCode, args, locale)
         );
     }

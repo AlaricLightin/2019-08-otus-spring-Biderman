@@ -3,6 +3,7 @@ package ru.biderman.studenttest.userinputoutput;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
+import ru.biderman.studenttest.domain.UserInterfaceProperties;
 import ru.biderman.studenttest.userinputoutput.exceptions.UserInputException;
 
 import java.io.ByteArrayInputStream;
@@ -29,13 +30,6 @@ class UserInterfaceImplTest {
 
     private static final String PROMPT = "prompt";
 
-    @BeforeAll
-    static void initMessageSource() {
-        messageSource = mock(MessageSource.class);
-        when(messageSource.getMessage(INCORRECT_INPUT_ERROR_ID, INCORRECT_INPUT_ARGS, locale))
-                .thenReturn(INCORRECT_INPUT_ERROR_MESSAGE);
-    }
-
     private UserInterfaceStreams createMockUIStreams(String inputString, ByteArrayOutputStream outputStream) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(inputString.getBytes());
         PrintStream printStream = new PrintStream(outputStream);
@@ -47,8 +41,17 @@ class UserInterfaceImplTest {
         return result;
     }
 
+    @BeforeAll
+    static void initMessageSource() {
+        messageSource = mock(MessageSource.class);
+        when(messageSource.getMessage(INCORRECT_INPUT_ERROR_ID, INCORRECT_INPUT_ARGS, locale))
+                .thenReturn(INCORRECT_INPUT_ERROR_MESSAGE);
+    }
+
     private UserInterface createUserInterface(UserInterfaceStreams userInterfaceStreams) {
-        return new UserInterfaceImpl(userInterfaceStreams, messageSource, locale);
+        UserInterfaceProperties userInterfaceProperties = mock(UserInterfaceProperties.class);
+        when(userInterfaceProperties.getLocale()).thenReturn(new Locale("ru-RU"));
+        return new UserInterfaceImpl(userInterfaceStreams, userInterfaceProperties, messageSource);
     }
 
     private static class TestDataInputUI implements DataInputUI<String> {

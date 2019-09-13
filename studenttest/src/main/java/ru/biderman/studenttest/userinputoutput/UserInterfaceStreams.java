@@ -6,7 +6,7 @@ import java.io.PrintStream;
 /**
  * Доступ к потокам ввода-вывода.
  */
-interface UserInterfaceStreams {
+public interface UserInterfaceStreams {
     InputStream getInputStream();
     PrintStream getPrintStream();
 }
