@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 
 @Service
-public class UserInterfaceStreamsImpl implements UserInterfaceStreams {
+class UserInterfaceStreamsImpl implements UserInterfaceStreams {
     @Override
     public InputStream getInputStream() {
         return System.in;

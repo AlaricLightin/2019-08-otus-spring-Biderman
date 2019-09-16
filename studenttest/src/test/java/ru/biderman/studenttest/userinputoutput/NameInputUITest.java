@@ -2,7 +2,6 @@ package ru.biderman.studenttest.userinputoutput;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.context.MessageSource;
 import ru.biderman.studenttest.userinputoutput.exceptions.InvalidNameException;
@@ -33,8 +32,7 @@ class NameInputUITest {
     }
 
     @ParameterizedTest
-    @EmptySource
-    @ValueSource(strings = {"NameOnly"})
+    @ValueSource(strings = {"", "NameOnly"})
     void convertStringError(String s) {
         assertThrows(InvalidNameException.class, () -> nameInputUI.convertString(s));
     }

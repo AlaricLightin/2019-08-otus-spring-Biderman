@@ -1,0 +1,6 @@
+questions-source:
+  file-prefix: classpath:/questions
+
+user-interface:
+  locale: en_US
+  questions-count: 1

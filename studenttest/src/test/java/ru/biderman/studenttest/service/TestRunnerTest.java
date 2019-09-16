@@ -1,6 +1,8 @@
 package ru.biderman.studenttest.service;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import ru.biderman.studenttest.domain.UserInterfaceProperties;
 import ru.biderman.studenttest.userinputoutput.UserInterface;
 
 import java.util.Optional;
@@ -8,7 +10,14 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 class TestRunnerTest {
-    private final int QUESTION_COUNT = 2;
+    private static final int QUESTION_COUNT = 2;
+    private static UserInterfaceProperties userInterfaceProperties;
+
+    @BeforeAll
+    static void init() {
+        userInterfaceProperties = mock(UserInterfaceProperties.class);
+        when(userInterfaceProperties.getQuestionsCount()).thenReturn(QUESTION_COUNT);
+    }
 
     @Test
     void run() throws NotEnoughQuestionException, TestCanceledException{
@@ -23,7 +32,7 @@ class TestRunnerTest {
         NameService nameService = mock(NameService.class);
         when(nameService.getName()).thenReturn(Optional.of(USER));
 
-        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, QUESTION_COUNT);
+        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, userInterfaceProperties);
         testRunner.run();
         verify(userInterface).printText("test-run.prompt");
         verify(userInterface).printText("test-run.result", new Object[]{USER, ANSWER_COUNT, QUESTION_COUNT});
@@ -35,7 +44,7 @@ class TestRunnerTest {
         TestService testService = mock(TestService.class);
         NameService nameService = mock(NameService.class);
         when(nameService.getName()).thenReturn(Optional.empty());
-        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, QUESTION_COUNT);
+        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, userInterfaceProperties);
         testRunner.run();
         verify(userInterface).printText("test-run.prompt");
         verify(userInterface).printText("test-run.canceled");
@@ -50,7 +59,7 @@ class TestRunnerTest {
         NameService nameService = mock(NameService.class);
         when(nameService.getName()).thenReturn(Optional.empty());
 
-        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, QUESTION_COUNT);
+        TestRunner testRunner = new TestRunner(nameService, testService, userInterface, userInterfaceProperties);
         testRunner.run();
 
         verify(userInterface).printText("test-run.prompt");

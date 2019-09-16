@@ -2,7 +2,6 @@ package ru.biderman.studenttest.userinputoutput;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.context.MessageSource;
 import ru.biderman.studenttest.domain.VariantQuestion;
@@ -52,8 +51,7 @@ class VariantAnswerInputUITest {
     }
 
     @ParameterizedTest
-    @EmptySource
-    @ValueSource(strings = {"-1", "0", "3"})
+    @ValueSource(strings = {"", "-1", "0", "3"})
     void convertStringWithException(String s) {
         assertThrows(InvalidVariantAnswerException.class, () -> inputUI.convertString(s));
     }

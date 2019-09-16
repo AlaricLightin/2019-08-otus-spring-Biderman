@@ -1,28 +1,26 @@
 package ru.biderman.studenttest.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import ru.biderman.studenttest.domain.UserInterfaceProperties;
 import ru.biderman.studenttest.userinputoutput.UserInterface;
 
 import java.util.Optional;
 
-@PropertySource("classpath:application.properties")
 @Service
 public class TestRunner {
     private final NameService nameService;
     private final TestService testService;
     private final UserInterface userInterface;
-    private final int questionCount;
+    private final UserInterfaceProperties userInterfaceProperties;
 
     TestRunner(NameService nameService,
                       TestService testService,
                       UserInterface userInterface,
-                      @Value("${questions.count}") int questionCount) {
+                      UserInterfaceProperties userInterfaceProperties) {
         this.nameService = nameService;
         this.testService = testService;
         this.userInterface = userInterface;
-        this.questionCount = questionCount;
+        this.userInterfaceProperties = userInterfaceProperties;
     }
 
     public void run() {
@@ -34,6 +32,7 @@ public class TestRunner {
         }
 
         try {
+            int questionCount = userInterfaceProperties.getQuestionsCount();
             int result = testService.test(questionCount);
             userInterface.printText("test-run.result", new Object[]{userName.get(), result, questionCount});
 
