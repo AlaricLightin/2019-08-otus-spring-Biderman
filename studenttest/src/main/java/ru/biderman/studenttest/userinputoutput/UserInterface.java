@@ -24,4 +24,12 @@ public interface UserInterface {
     default void printText(String messageCode) {
         printText(messageCode, null);
     }
+
+    /**
+     * Возвращает текстовое сообщение для пользователя (например, для работы со SpringShell)
+     * @param messageCode код строки из файлов локализации
+     * @param args перечень аргументов
+     */
+    String getText(String messageCode, Object[] args);
+
 }

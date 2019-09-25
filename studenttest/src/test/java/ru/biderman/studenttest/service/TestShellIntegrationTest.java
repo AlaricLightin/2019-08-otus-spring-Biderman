@@ -15,15 +15,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
-class TestRunnerIntegrationTest {
-    private static final String USER_NAME = "User User";
-    private static final String CORRECT_ANSWER = "1";
+@ExtendWith(SpringExtension.class)
+class TestShellIntegrationTest {
     private static final Locale TEST_LOCALE = new Locale("en_US");
+    private static final String CORRECT_ANSWER = "1";
+    private static final String USER_NAME = "Username";
+    private static final String USER_SURNAME = "User-surname";
     private static final int QUESTION_COUNT = 1;
     private static final String EXIT_INPUT = "q";
 
@@ -31,31 +32,49 @@ class TestRunnerIntegrationTest {
     UserInterfaceStreams userInterfaceStreams;
 
     @Autowired
-    TestRunner testRunner;
+    TestShell testShell;
 
     @Autowired
     MessageSource messageSource;
 
+    private String getMessageSourceText(String messageCode, Object[] args) {
+        return messageSource.getMessage(messageCode, args, TEST_LOCALE);
+    }
+
     @Test
     @DirtiesContext
-    void correctAnswered() {
+    void login() {
+        assertEquals(
+                getMessageSourceText("test-run.greeting", new String[]{USER_NAME, USER_SURNAME}),
+                testShell.login(USER_NAME, USER_SURNAME));
+    }
+
+    @Test
+    @DirtiesContext
+    void fullCheckWithSuccess() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        String inputString = USER_NAME + System.lineSeparator() + CORRECT_ANSWER + System.lineSeparator();
+        String inputString = CORRECT_ANSWER + System.lineSeparator();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(inputString.getBytes());
         PrintStream printStream = new PrintStream(outputStream);
 
         when(userInterfaceStreams.getInputStream()).thenReturn(inputStream);
         when(userInterfaceStreams.getPrintStream()).thenReturn(printStream);
 
-        testRunner.run();
-        String testString = messageSource.getMessage(
-                "test-run.result", new Object[]{USER_NAME, QUESTION_COUNT, QUESTION_COUNT}, TEST_LOCALE);
-        assertTrue(outputStream.toString().contains(testString));
+        assertFalse(testShell.isLoggedIn().isAvailable());
+        testShell.login(USER_NAME, USER_SURNAME);
+        assertTrue(testShell.isLoggedIn().isAvailable());
+        assertFalse(testShell.isTested().isAvailable());
+
+        testShell.startTest();
+        assertTrue(testShell.isTested().isAvailable());
+        String testString = getMessageSourceText(
+                "test-run.result", new Object[]{USER_NAME, USER_SURNAME, QUESTION_COUNT, QUESTION_COUNT});
+        assertEquals(testString, testShell.printResult());
     }
 
     @Test
     @DirtiesContext
-    void testCanceled() {
+    void checkCanceled() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ByteArrayInputStream inputStream = new ByteArrayInputStream(EXIT_INPUT.getBytes());
         PrintStream printStream = new PrintStream(outputStream);
@@ -63,9 +82,8 @@ class TestRunnerIntegrationTest {
         when(userInterfaceStreams.getInputStream()).thenReturn(inputStream);
         when(userInterfaceStreams.getPrintStream()).thenReturn(printStream);
 
-        testRunner.run();
-        String testString = messageSource.getMessage(
-                "test-run.canceled", null, TEST_LOCALE);
-        assertTrue(outputStream.toString().contains(testString));
+        testShell.login(USER_NAME, USER_SURNAME);
+        testShell.startTest();
+        assertFalse(testShell.isTested().isAvailable());
     }
 }

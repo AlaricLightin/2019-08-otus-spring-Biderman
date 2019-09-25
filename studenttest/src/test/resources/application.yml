@@ -1,3 +1,8 @@
+spring:
+  shell:
+    interactive:
+      enabled: false
+
 questions-source:
   file-prefix: classpath:/questions
 

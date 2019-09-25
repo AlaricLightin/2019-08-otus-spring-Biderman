@@ -139,4 +139,12 @@ class UserInterfaceImplTest {
         userInterface.printText(INCORRECT_INPUT_ERROR_ID, INCORRECT_INPUT_ARGS);
         assertEquals(INCORRECT_INPUT_ERROR_MESSAGE + System.lineSeparator(), outputStream.toString());
     }
+
+    @Test
+    void getText() {
+        UserInterfaceStreams userInterfaceStreams = mock(UserInterfaceStreams.class);
+        UserInterface userInterface = createUserInterface(userInterfaceStreams);
+        assertEquals(INCORRECT_INPUT_ERROR_MESSAGE,
+                userInterface.getText(INCORRECT_INPUT_ERROR_ID, INCORRECT_INPUT_ARGS));
+    }
 }

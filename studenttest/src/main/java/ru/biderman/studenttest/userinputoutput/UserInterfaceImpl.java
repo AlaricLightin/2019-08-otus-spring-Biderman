@@ -54,16 +54,18 @@ public class UserInterfaceImpl implements UserInterface {
                 return Optional.of(result);
             }
             catch (UserInputException e) {
-                getPrintStream().println(
-                        messageSource.getMessage(e.getLocalizedMessageId(), e.getLocalizedMessageArgs(), locale));
+                printText(e.getLocalizedMessageId(), e.getLocalizedMessageArgs());
             }
         }
     }
 
     @Override
     public void printText(String messageCode, Object[] args) {
-        getPrintStream().println(
-                messageSource.getMessage(messageCode, args, locale)
-        );
+        getPrintStream().println(getText(messageCode, args));
+    }
+
+    @Override
+    public String getText(String messageCode, Object[] args) {
+        return messageSource.getMessage(messageCode, args, locale);
     }
 }
