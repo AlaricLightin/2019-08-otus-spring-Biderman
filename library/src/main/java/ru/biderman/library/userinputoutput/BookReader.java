@@ -6,6 +6,7 @@ import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Genre;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,6 +40,6 @@ public class BookReader {
                 break;
         }
 
-        return Book.createNewBook(authors, title, genres);
+        return Book.createNewBook(authors, title, new HashSet<>(genres));
     }
 }

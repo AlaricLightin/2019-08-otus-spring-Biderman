@@ -8,7 +8,7 @@ import ru.biderman.library.domain.Genre;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UIUtilsTest {
 
@@ -18,14 +18,14 @@ class UIUtilsTest {
                 UIUtils.getBookString(
                         new Book(1, Collections.singletonList(Author.createNewAuthor("Ivanov", "Ivan")),
                                 "Title",
-                                Collections.singletonList(Genre.createNewGenre("Some genre")))
+                                Collections.singleton(Genre.createNewGenre("Some genre")))
                 ));
 
         assertEquals("1. \"Title\". Some genre",
                 UIUtils.getBookString(
                         new Book(1, Collections.emptyList(),
                                 "Title",
-                                Collections.singletonList(Genre.createNewGenre("Some genre")))
+                                Collections.singleton(Genre.createNewGenre("Some genre")))
                 ));
 
         assertEquals("1. Ivanov Ivan, Petrov Petr, \"Title\". Some genre",
@@ -35,7 +35,7 @@ class UIUtilsTest {
                                     Author.createNewAuthor("Petrov", "Petr")
                                 ),
                                 "Title",
-                                Collections.singletonList(Genre.createNewGenre("Some genre")))
+                                Collections.singleton(Genre.createNewGenre("Some genre")))
                 ));
     }
 }

@@ -1,10 +1,13 @@
-package ru.biderman.library.service;
+package ru.biderman.library.shell;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Genre;
+import ru.biderman.library.service.AuthorService;
+import ru.biderman.library.service.BookService;
+import ru.biderman.library.service.GenreService;
 import ru.biderman.library.service.exceptions.*;
 import ru.biderman.library.userinputoutput.BookReader;
 import ru.biderman.library.userinputoutput.UIUtils;
@@ -150,4 +153,10 @@ public class LibraryShell {
         bookService.deleteBook(id);
         return userInterface.getText("shell.book-deleted");
     }
+
+//    @ShellMethod(value = "Start console", key = {"console"})
+//    String console() throws Exception{
+//        Console.main();
+//        return "Console started";
+//    }
 }

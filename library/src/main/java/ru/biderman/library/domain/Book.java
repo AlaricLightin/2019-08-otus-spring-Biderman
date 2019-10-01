@@ -1,22 +1,42 @@
 package ru.biderman.library.domain;
 
+import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
+@Entity
+@Table(name = "books")
 public class Book {
-    private final long id;
-    private final List<Author> authorList;
-    private final String title;
-    private final List<Genre> genreList;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    public static Book createNewBook(List<Author> authorList, String title, List<Genre> genreList) {
-        return new Book(-1, authorList, title, genreList);
+    @ManyToMany(targetEntity = Author.class, fetch = FetchType.EAGER)
+    @JoinTable(name = "book_authors", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id"))
+    private List<Author> authorList;
+
+    @Column(name = "title")
+    private String title;
+
+    @ManyToMany(targetEntity = Genre.class, fetch = FetchType.EAGER)
+    @JoinTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private Set<Genre> genres;
+
+    public static Book createNewBook(List<Author> authorList, String title, Set<Genre> genreList) {
+        return new Book(0, authorList, title, genreList);
     }
 
-    public Book(long id, List<Author> authorList, String title, List<Genre> genreList) {
+    public Book() {
+    }
+
+    public Book(long id, List<Author> authorList, String title, Set<Genre> genres) {
         this.id = id;
         this.authorList = authorList;
         this.title = title;
-        this.genreList = genreList;
+        this.genres = genres;
     }
 
     public long getId() {
@@ -31,7 +51,7 @@ public class Book {
         return title;
     }
 
-    public List<Genre> getGenreList() {
-        return genreList;
+    public Set<Genre> getGenres() {
+        return genres;
     }
 }

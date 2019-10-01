@@ -1,4 +1,4 @@
-package ru.biderman.library.service;
+package ru.biderman.library.shell;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +8,9 @@ import org.mockito.ArgumentCaptor;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Genre;
+import ru.biderman.library.service.AuthorService;
+import ru.biderman.library.service.BookService;
+import ru.biderman.library.service.GenreService;
 import ru.biderman.library.service.exceptions.*;
 import ru.biderman.library.userinputoutput.BookReader;
 import ru.biderman.library.userinputoutput.UIUtils;
@@ -103,6 +106,7 @@ class LibraryShellTest {
             final String NEW_TITLE = "New title";
             setRightResultMessageCode("shell.genre-updated");
             String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TITLE);
+            ArgumentCaptor<Genre> argumentCaptor = ArgumentCaptor.forClass(Genre.class);
             verify(genreService).updateGenre(GENRE_ID, NEW_TITLE);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
@@ -238,7 +242,7 @@ class LibraryShellTest {
             Book book = new Book(BOOK_ID,
                     Collections.singletonList(new Author(AUTHOR_ID, SURNAME, NAME)),
                     BOOK_TITLE,
-                    Collections.singletonList(new Genre(GENRE_ID, GENRE_TITLE)));
+                    Collections.singleton(new Genre(GENRE_ID, GENRE_TITLE)));
 
             when(bookService.getAllBooks()).thenReturn(Collections.singletonList(book));
             String result = libraryShell.printAllBooks();
@@ -263,7 +267,7 @@ class LibraryShellTest {
             when(genreService.getAllGenres()).thenReturn(genreMap);
             when(authorService.getAllAuthors()).thenReturn(authorMap);
 
-            Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singletonList(genre));
+            Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singleton(genre));
             when(bookReader.getBook(authorMap, genreMap)).thenReturn(book);
             setRightResultMessageCode("shell.book-added");
 

@@ -25,8 +25,11 @@ class AuthorServiceImpl implements AuthorService{
     @Override
     public void updateAuthor(long id, Author author) throws UpdateAuthorException {
         Author oldAuthor = authorDao.getAuthorById(id);
-        if (oldAuthor != null)
-            authorDao.updateAuthor(id, author);
+        if (oldAuthor != null) {
+            oldAuthor.setSurname(author.getSurname());
+            oldAuthor.setOtherNames(author.getOtherNames());
+            authorDao.updateAuthor(oldAuthor);
+        }
         else
             throw new UpdateAuthorException();
     }
@@ -34,10 +37,7 @@ class AuthorServiceImpl implements AuthorService{
     @Override
     public void deleteAuthor(long id) throws DeleteAuthorException {
         try {
-            if (!authorDao.isUsed(id))
-                authorDao.deleteAuthor(id);
-            else
-                throw new DeleteAuthorException();
+            authorDao.deleteAuthor(id);
         }
         catch (DaoException e) {
             throw new DeleteAuthorException();

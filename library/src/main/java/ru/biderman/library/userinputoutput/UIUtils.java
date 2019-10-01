@@ -23,7 +23,7 @@ public class UIUtils {
         if (!authorString.isEmpty())
             authorString = authorString + ", ";
 
-        String genreString = book.getGenreList().stream()
+        String genreString = book.getGenres().stream()
                 .map(Genre::getTitle)
                 .collect(Collectors.joining(", "));
 

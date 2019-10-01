@@ -6,10 +6,9 @@ import java.util.Map;
 
 public interface GenreDao {
     void addGenre(Genre genre) throws DaoException;
-    void updateGenre(long id, String title);
+    void updateGenre(Genre genre) throws DaoException;
     void deleteGenre(long id) throws DaoException;
     Map<Long, Genre> getAllGenres();
     Genre getGenreById(long id);
     Genre getGenreByTitle(String title);
-    boolean isUsed(long id);
 }

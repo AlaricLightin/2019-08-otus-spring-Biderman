@@ -1,4 +1,4 @@
-INSERT INTO genres(id, title) values ( 1, 'Test genre 0' );
+INSERT INTO genres(id, title) values ( 1, 'Test-genre' );
 INSERT INTO genres(id, title) values ( 2, 'Genre for delete' );
 
 INSERT INTO authors(id, surname, other_names) VALUES ( 1, 'Ivanov', 'Ivan Ivanovich' );

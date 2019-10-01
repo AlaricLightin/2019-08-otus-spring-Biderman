@@ -3,28 +3,27 @@ package ru.biderman.library.dao;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Dao для работы с авторами ")
-@JdbcTest
+@DataJpaTest
 @ExtendWith(SpringExtension.class)
-@Import(AuthorDaoJdbc.class)
-class AuthorDaoJdbcTest {
+@EntityScan(basePackageClasses = Author.class)
+@Import(AuthorDaoJpa.class)
+class AuthorDaoJpaTest {
     private static final String EXISTING_AUTHOR_SURNAME1 = "Ivanov";
     private static final String EXISTING_AUTHOR_OTHER_NAMES1 = "Ivan Ivanovich";
     private static final String EXISTING_AUTHOR_SURNAME2 = "Smith";
@@ -36,27 +35,28 @@ class AuthorDaoJdbcTest {
     private static final long NON_EXISTENT_AUTHOR_ID = 100;
 
     @Autowired
-    AuthorDaoJdbc authorDaoJdbc;
+    TestEntityManager testEntityManager;
+
+    @Autowired
+    AuthorDaoJpa authorDaoJpa;
 
     @DisplayName("должен добавлять автора.")
     @Test
     void shouldAddGenre() {
         final String NEW_AUTHOR_SURNAME = "Петров";
         final String NEW_AUTHOR_OTHER_NAMES = "Петров";
-        authorDaoJdbc.addAuthor(Author.createNewAuthor(NEW_AUTHOR_SURNAME, NEW_AUTHOR_OTHER_NAMES));
-        Map<Long, Author> authors = authorDaoJdbc.getAllAuthors();
-        assertThat(authors.values()).extracting("surname", "otherNames").containsOnly(
-                tuple(EXISTING_AUTHOR_SURNAME1, EXISTING_AUTHOR_OTHER_NAMES1),
-                tuple(EXISTING_AUTHOR_SURNAME2, EXISTING_AUTHOR_OTHER_NAMES2),
-                tuple(AUTHOR_FOR_DELETE_SURNAME, AUTHOR_FOR_DELETE_OTHER_NAMES),
-                tuple(NEW_AUTHOR_SURNAME, NEW_AUTHOR_OTHER_NAMES)
-        );
+        Author newAuthor = Author.createNewAuthor(NEW_AUTHOR_SURNAME, NEW_AUTHOR_OTHER_NAMES);
+        authorDaoJpa.addAuthor(newAuthor);
+        assertThat(newAuthor.getId()).isGreaterThan(0);
+
+        Author author = testEntityManager.find(Author.class, newAuthor.getId());
+        assertThat(author).isEqualToComparingFieldByField(newAuthor);
     }
 
     @DisplayName("должен возвращать полный список авторов.")
     @Test
     void shouldGetAll() {
-        Map<Long, Author> authors = authorDaoJdbc.getAllAuthors();
+        Map<Long, Author> authors = authorDaoJpa.getAllAuthors();
         assertThat(authors.values()).extracting("surname", "otherNames").containsOnly(
                 tuple(EXISTING_AUTHOR_SURNAME1, EXISTING_AUTHOR_OTHER_NAMES1),
                 tuple(EXISTING_AUTHOR_SURNAME2, EXISTING_AUTHOR_OTHER_NAMES2),
@@ -67,7 +67,7 @@ class AuthorDaoJdbcTest {
     @DisplayName("должен возвращать автора по id.")
     @Test
     void shouldGetAuthorById() {
-        Author author = authorDaoJdbc.getAuthorById(EXISTING_AUTHOR_ID);
+        Author author = authorDaoJpa.getAuthorById(EXISTING_AUTHOR_ID);
         assertThat(author)
                 .hasFieldOrPropertyWithValue("surname", EXISTING_AUTHOR_SURNAME1)
                 .hasFieldOrPropertyWithValue("otherNames", EXISTING_AUTHOR_OTHER_NAMES1);
@@ -76,7 +76,7 @@ class AuthorDaoJdbcTest {
     @DisplayName("должен возвращать null, если автора нет")
     @Test
     void shouldGetNullIfAuthorAbsent() {
-        assertNull(authorDaoJdbc.getAuthorById(NON_EXISTENT_AUTHOR_ID));
+        assertNull(authorDaoJpa.getAuthorById(NON_EXISTENT_AUTHOR_ID));
     }
 
     @DisplayName("должен редактировать автора")
@@ -84,8 +84,13 @@ class AuthorDaoJdbcTest {
     void shouldUpdateGenre() {
         final String surname = "New-surname";
         final String name = "New-name";
-        authorDaoJdbc.updateAuthor(EXISTING_AUTHOR_ID, Author.createNewAuthor(surname, name));
-        Author author = authorDaoJdbc.getAuthorById(EXISTING_AUTHOR_ID);
+        Author author = testEntityManager.find(Author.class, EXISTING_AUTHOR_ID);
+        author.setSurname(surname);
+        author.setOtherNames(name);
+
+        authorDaoJpa.updateAuthor(author);
+
+        author = testEntityManager.find(Author.class, EXISTING_AUTHOR_ID);
         assertThat(author)
                 .hasFieldOrPropertyWithValue("surname", surname)
                 .hasFieldOrPropertyWithValue("otherNames", name);
@@ -95,29 +100,14 @@ class AuthorDaoJdbcTest {
     @DisplayName("должен удалять автора.")
     @Test
     void shouldDeleteAuthor() throws DaoException {
-        authorDaoJdbc.deleteAuthor(AUTHOR_FOR_DELETE_ID);
-        Map<Long, Author> authors = authorDaoJdbc.getAllAuthors();
-        assertThat(authors).hasSize(2);
+        authorDaoJpa.deleteAuthor(AUTHOR_FOR_DELETE_ID);
+        Author deletedAuthor = testEntityManager.find(Author.class, AUTHOR_FOR_DELETE_ID);
+        assertNull(deletedAuthor);
     }
 
     @DisplayName("должен бросать исключение, если автора удалить нельзя")
     @Test
     void shouldThrowExceptionIfCouldNotDelete() {
-        assertThrows(DaoException.class, () -> authorDaoJdbc.deleteAuthor(EXISTING_AUTHOR_ID));
-    }
-
-    @DisplayName("должен сообщать, используется ли автор")
-    @ParameterizedTest
-    @MethodSource("generateData")
-    void shouldGetIsUsed(long id, boolean isUsed) {
-        assertThat(authorDaoJdbc.isUsed(id)).isEqualTo(isUsed);
-    }
-
-    private static Stream<Arguments> generateData() {
-        return Stream.of(
-                Arguments.of(1, true),
-                Arguments.of(2, true),
-                Arguments.of(3, false)
-        );
+        assertThrows(DaoException.class, () -> authorDaoJpa.deleteAuthor(EXISTING_AUTHOR_ID));
     }
 }

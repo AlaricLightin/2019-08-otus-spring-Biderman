@@ -4,7 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
@@ -13,16 +15,16 @@ import ru.biderman.library.domain.Genre;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Dao для работы с книгами ")
-@JdbcTest
+@DataJpaTest
 @ExtendWith(SpringExtension.class)
-@Import({BookDaoJdbc.class, AuthorDaoJdbc.class, GenreDaoJdbc.class})
-class BookDaoJdbcTest {
+@EntityScan(basePackages = "ru.biderman.library.domain")
+@Import(BookDaoJpa.class)
+class BookDaoJpaTest {
     private static final long EXISTING_BOOK_ID = 1;
     private static final String EXISTING_BOOK_NAME = "Book Name";
     private static final long BOOK_AUTHOR1_ID = 1;
@@ -30,12 +32,15 @@ class BookDaoJdbcTest {
     private static final long BOOK_GENRE = 1;
 
     @Autowired
-    BookDaoJdbc bookDaoJdbc;
+    BookDaoJpa bookDaoJpa;
+
+    @Autowired
+    TestEntityManager testEntityManager;
 
     @DisplayName("должен получать книги по id")
     @Test
     void shouldGetBookById() {
-        Book book = bookDaoJdbc.getBookById(EXISTING_BOOK_ID);
+        Book book = bookDaoJpa.getBookById(EXISTING_BOOK_ID);
         assertThat(book)
                 .hasFieldOrPropertyWithValue("id", EXISTING_BOOK_ID)
                 .hasFieldOrPropertyWithValue("title", EXISTING_BOOK_NAME)
@@ -43,7 +48,7 @@ class BookDaoJdbcTest {
                         assertThat(book1.getAuthorList())
                                 .extracting("id")
                                 .containsOnly(BOOK_AUTHOR1_ID, BOOK_AUTHOR2_ID))
-                .satisfies(book1 -> assertThat(book1.getGenreList())
+                .satisfies(book1 -> assertThat(book1.getGenres())
                         .extracting("id")
                         .containsOnly(BOOK_GENRE));
     }
@@ -51,7 +56,7 @@ class BookDaoJdbcTest {
     @DisplayName("должен возвращать все книги")
     @Test
     void shouldGetAllBooks() {
-        List<Book> books = bookDaoJdbc.getAllBooks();
+        List<Book> books = bookDaoJpa.getAllBooks();
         assertThat(books).hasSize(1);
         Book book = books.get(0);
         assertThat(book)
@@ -61,7 +66,7 @@ class BookDaoJdbcTest {
                         assertThat(book1.getAuthorList())
                                 .extracting("id")
                                 .containsOnly(BOOK_AUTHOR1_ID, BOOK_AUTHOR2_ID))
-                .satisfies(book1 -> assertThat(book1.getGenreList())
+                .satisfies(book1 -> assertThat(book1.getGenres())
                         .extracting("id")
                         .containsOnly(BOOK_GENRE));
     }
@@ -69,9 +74,9 @@ class BookDaoJdbcTest {
     @DisplayName("должен удалять книгу по id")
     @Test
     void shouldDeleteBookById() {
-        bookDaoJdbc.deleteBook(EXISTING_BOOK_ID);
-        List<Book> books = bookDaoJdbc.getAllBooks();
-        assertThat(books).hasSize(0);
+        bookDaoJpa.deleteBook(EXISTING_BOOK_ID);
+        Book deletedBook = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
+        assertNull(deletedBook);
     }
 
     @DisplayName("должен добавлять книгу")
@@ -81,21 +86,11 @@ class BookDaoJdbcTest {
         Book book = Book.createNewBook(
                 Collections.singletonList(new Author(BOOK_AUTHOR1_ID, "X", "X")),
                 NEW_BOOK_TITLE,
-                Collections.singletonList(new Genre(BOOK_GENRE, "X")));
-        bookDaoJdbc.addBook(book);
+                Collections.singleton(new Genre(BOOK_GENRE, "X")));
+        bookDaoJpa.addBook(book);
 
-        List<Book> books = bookDaoJdbc.getAllBooks();
-        assertThat(books).hasSize(2);
-
-        Book newBook = books.stream().filter(b -> EXISTING_BOOK_ID != b.getId()).findFirst().orElse(null);
-        assertThat(newBook)
-                .hasFieldOrPropertyWithValue("title", NEW_BOOK_TITLE)
-                .satisfies(book1 ->
-                        assertThat(book1.getAuthorList())
-                                .extracting("id")
-                                .containsOnly(BOOK_AUTHOR1_ID))
-                .satisfies(book1 -> assertThat(book1.getGenreList())
-                        .extracting("id")
-                        .containsOnly(BOOK_GENRE));
+        assertThat(book.getId()).isGreaterThan(0);
+        Book newBook = testEntityManager.find(Book.class, book.getId());
+        assertThat(newBook).isEqualToComparingFieldByField(book);
     }
 }

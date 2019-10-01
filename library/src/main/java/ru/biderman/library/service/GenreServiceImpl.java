@@ -35,8 +35,14 @@ class GenreServiceImpl implements GenreService {
     @Override
     public void updateGenre(long id, String title) throws UpdateGenreException {
         Genre genre = genreDao.getGenreById(id);
-        if (genre != null)
-            genreDao.updateGenre(id, title);
+        if (genre != null) {
+            genre.setTitle(title);
+            try {
+                genreDao.updateGenre(genre);
+            } catch (DaoException e) {
+                throw new UpdateGenreException();
+            }
+        }
         else
             throw new UpdateGenreException();
     }
@@ -44,10 +50,7 @@ class GenreServiceImpl implements GenreService {
     @Override
     public void deleteGenre(long id) throws DeleteGenreException {
         try {
-            if (!genreDao.isUsed(id))
-                genreDao.deleteGenre(id);
-            else
-                throw new DeleteGenreException();
+            genreDao.deleteGenre(id);
         }
         catch (DaoException e) {
             throw new DeleteGenreException();

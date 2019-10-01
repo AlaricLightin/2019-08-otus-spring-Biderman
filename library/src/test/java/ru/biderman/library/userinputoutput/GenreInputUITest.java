@@ -14,7 +14,8 @@ import ru.biderman.library.userinputoutput.exceptions.UserInputException;
 import java.util.HashMap;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
