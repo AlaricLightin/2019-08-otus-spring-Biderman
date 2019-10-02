@@ -15,7 +15,6 @@ import ru.biderman.library.userinputoutput.UserInterface;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @ShellComponent
@@ -39,10 +38,9 @@ public class LibraryShell {
 
     @ShellMethod(value = "Print all genres", key = {"print-genres"})
     String printAllGenres(){
-        Map<Long, Genre> genres = genreService.getAllGenres();
+        List<Genre> genres = genreService.getAllGenres();
         if (genres.size() > 0)
-            return genres.values().stream()
-                    .sorted(Comparator.comparing(Genre::getId))
+            return genres.stream()
                     .map(UIUtils::getGenreString)
                     .collect(Collectors.joining("\n"));
         else
@@ -84,10 +82,9 @@ public class LibraryShell {
 
     @ShellMethod(value = "Print all authors", key = {"print-authors"})
     String printAllAuthors() {
-        Map<Long, Author> authorMap = authorService.getAllAuthors();
-        if (authorMap.size() > 0)
-            return authorMap.values().stream()
-                    .sorted(Comparator.comparing(Author::getId))
+        List<Author> authors = authorService.getAllAuthors();
+        if (authors.size() > 0)
+            return authors.stream()
                     .map(UIUtils::getAuthorString)
                     .collect(Collectors.joining("\n"));
         else
@@ -141,9 +138,9 @@ public class LibraryShell {
 
     @ShellMethod(value = "Add book", key = {"add-book"})
     String addBook() {
-        Map<Long, Author> authorMap = authorService.getAllAuthors();
-        Map<Long, Genre> genreMap = genreService.getAllGenres();
-        Book book = bookReader.getBook(authorMap, genreMap);
+        List<Author> authors = authorService.getAllAuthors();
+        List<Genre> genres = genreService.getAllGenres();
+        Book book = bookReader.getBook(authors, genres);
         bookService.addBook(book);
         return userInterface.getText("shell.book-added");
     }

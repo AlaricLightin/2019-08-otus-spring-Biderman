@@ -5,6 +5,7 @@ import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Genre;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,8 +29,8 @@ class BookReaderTest {
                 Optional.empty()
         );
 
-        BookReader bookReader = new BookReader(userInterface);
-        Book book = bookReader.getBook(null, null);
+        BookReader bookReader = new BookReaderImpl(userInterface);
+        Book book = bookReader.getBook(Collections.emptyList(), Collections.emptyList());
         assertThat(book).hasFieldOrPropertyWithValue("title", BOOK_TITLE);
         assertThat(book.getAuthorList()).containsOnly(author);
         assertThat(book.getGenres()).containsOnly(genre);

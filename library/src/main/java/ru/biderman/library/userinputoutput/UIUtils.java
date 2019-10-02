@@ -12,7 +12,7 @@ public class UIUtils {
     }
 
     public static String getGenreString(Genre genre) {
-        return String.format("%d. %s", genre.getId(), genre.getTitle());
+        return String.format("%d. %s", genre.getId(), genre.getText());
     }
 
     public static String getBookString(Book book) {
@@ -24,7 +24,7 @@ public class UIUtils {
             authorString = authorString + ", ";
 
         String genreString = book.getGenres().stream()
-                .map(Genre::getTitle)
+                .map(Genre::getText)
                 .collect(Collectors.joining(", "));
 
         return String.format("%d. %s\"%s\". %s", book.getId(), authorString, book.getTitle(), genreString);

@@ -2,13 +2,13 @@ package ru.biderman.library.dao;
 
 import ru.biderman.library.domain.Genre;
 
-import java.util.Map;
+import java.util.List;
 
 public interface GenreDao {
     void addGenre(Genre genre);
     void updateGenre(Genre genre);
     void deleteGenre(long id);
-    Map<Long, Genre> getAllGenres();
+    List<Genre> getAllGenres();
     Genre getGenreById(long id);
-    Genre getGenreByTitle(String title);
+    Genre getGenreByText(String text);
 }

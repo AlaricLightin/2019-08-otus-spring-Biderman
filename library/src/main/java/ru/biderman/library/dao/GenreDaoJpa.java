@@ -5,9 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.library.domain.Genre;
 
 import javax.persistence.*;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @SuppressWarnings("JpaQlInspection")
 @Repository
@@ -39,10 +37,9 @@ public class GenreDaoJpa implements GenreDao {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<Long, Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         TypedQuery<Genre> query = em.createQuery("select g from Genre g", Genre.class);
-        return query.getResultStream()
-                .collect(Collectors.toMap(Genre::getId, Function.identity()));
+        return query.getResultList();
     }
 
     @Override
@@ -53,9 +50,9 @@ public class GenreDaoJpa implements GenreDao {
 
     @Override
     @Transactional(readOnly = true)
-    public Genre getGenreByTitle(String title) {
-        TypedQuery<Genre> query = em.createQuery("select g from Genre g where g.title = :title", Genre.class);
-        query.setParameter("title", title);
+    public Genre getGenreByText(String text) {
+        TypedQuery<Genre> query = em.createQuery("select g from Genre g where g.text = :text", Genre.class);
+        query.setParameter("text", text);
         try {
             return query.getSingleResult();
         } catch (NoResultException e) {

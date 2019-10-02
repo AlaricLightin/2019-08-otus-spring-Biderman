@@ -8,7 +8,7 @@ import ru.biderman.library.service.exceptions.DeleteAuthorException;
 import ru.biderman.library.service.exceptions.UpdateAuthorException;
 
 import javax.persistence.PersistenceException;
-import java.util.Map;
+import java.util.List;
 
 @Service
 class AuthorServiceImpl implements AuthorService{
@@ -47,7 +47,7 @@ class AuthorServiceImpl implements AuthorService{
     }
 
     @Override
-    public Map<Long, Author> getAllAuthors() {
+    public List<Author> getAllAuthors() {
         return authorDao.getAllAuthors();
     }
 }

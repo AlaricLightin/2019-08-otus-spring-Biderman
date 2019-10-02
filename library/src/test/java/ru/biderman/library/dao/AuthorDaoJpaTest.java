@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
 
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -48,8 +48,8 @@ class AuthorDaoJpaTest {
     @DisplayName("должен возвращать полный список авторов.")
     @Test
     void shouldGetAll() {
-        Map<Long, Author> authors = authorDaoJpa.getAllAuthors();
-        assertThat(authors.values()).extracting("surname", "otherNames").containsOnly(
+        List<Author> authors = authorDaoJpa.getAllAuthors();
+        assertThat(authors).extracting("surname", "otherNames").containsOnly(
                 tuple(EXISTING_AUTHOR_SURNAME1, EXISTING_AUTHOR_OTHER_NAMES1),
                 tuple(EXISTING_AUTHOR_SURNAME2, EXISTING_AUTHOR_OTHER_NAMES2),
                 tuple(AUTHOR_FOR_DELETE_SURNAME, AUTHOR_FOR_DELETE_OTHER_NAMES)

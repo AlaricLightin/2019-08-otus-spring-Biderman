@@ -17,7 +17,7 @@ import ru.biderman.library.userinputoutput.UIUtils;
 import ru.biderman.library.userinputoutput.UserInterface;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.*;
@@ -53,7 +53,7 @@ class LibraryShellTest {
         @DisplayName("должен печатать их перечень, если он не пуст")
         @Test
         void shouldPrintAll() {
-            when(genreService.getAllGenres()).thenReturn(Collections.singletonMap(GENRE_ID, new Genre(GENRE_ID, GENRE_TITLE)));
+            when(genreService.getAllGenres()).thenReturn(Collections.singletonList(new Genre(GENRE_ID, GENRE_TITLE)));
             String result = libraryShell.printAllGenres();
             assertThat(result).isEqualTo(String.format("%d. %s", GENRE_ID, GENRE_TITLE));
         }
@@ -61,7 +61,7 @@ class LibraryShellTest {
         @DisplayName("должен сообщать, если список жанров пуст")
         @Test
         void shouldPrintAllIfEmpty() {
-            when(genreService.getAllGenres()).thenReturn(Collections.emptyMap());
+            when(genreService.getAllGenres()).thenReturn(Collections.emptyList());
             setRightResultMessageCode("shell.error.no-genres-found");
             assertThat(libraryShell.printAllGenres()).isEqualTo(RIGHT_RESULT_STRING);
         }
@@ -103,21 +103,21 @@ class LibraryShellTest {
         @DisplayName("должен обновлять жанр")
         @Test
         void shouldUpdate() throws ServiceException {
-            final String NEW_TITLE = "New title";
+            final String NEW_TEXT = "New title";
             setRightResultMessageCode("shell.genre-updated");
-            String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TITLE);
+            String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TEXT);
             ArgumentCaptor<Genre> argumentCaptor = ArgumentCaptor.forClass(Genre.class);
-            verify(genreService).updateGenre(GENRE_ID, NEW_TITLE);
+            verify(genreService).updateGenre(GENRE_ID, NEW_TEXT);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
 
         @DisplayName("должен обрабатывать исключение, если не удалось обновить")
         @Test
         void shouldCatchUpdateException() throws ServiceException {
-            final String NEW_TITLE = "New title";
+            final String NEW_TEXT = "New title";
             setRightResultMessageCode("shell.error.update-genre-error");
-            doThrow(UpdateGenreException.class).when(genreService).updateGenre(GENRE_ID, NEW_TITLE);
-            assertThat(libraryShell.updateGenre(GENRE_ID, NEW_TITLE)).isEqualTo(RIGHT_RESULT_STRING);
+            doThrow(UpdateGenreException.class).when(genreService).updateGenre(GENRE_ID, NEW_TEXT);
+            assertThat(libraryShell.updateGenre(GENRE_ID, NEW_TEXT)).isEqualTo(RIGHT_RESULT_STRING);
         }
     }
 
@@ -139,7 +139,7 @@ class LibraryShellTest {
         @Test
         void shouldPrintAll() {
             final long AUTHOR_ID = 1;
-            when(authorService.getAllAuthors()).thenReturn(Collections.singletonMap(AUTHOR_ID, new Author(AUTHOR_ID, SURNAME, NAME)));
+            when(authorService.getAllAuthors()).thenReturn(Collections.singletonList(new Author(AUTHOR_ID, SURNAME, NAME)));
             String result = libraryShell.printAllAuthors();
             assertThat(result).isEqualTo(String.format("%d. %s %s", AUTHOR_ID, SURNAME, NAME));
         }
@@ -147,7 +147,7 @@ class LibraryShellTest {
         @DisplayName("должен сообщать, если список авторов пуст")
         @Test
         void shouldPrintAllIfEmpty() {
-            when(authorService.getAllAuthors()).thenReturn(Collections.emptyMap());
+            when(authorService.getAllAuthors()).thenReturn(Collections.emptyList());
             setRightResultMessageCode("shell.error.no-authors-found");
             assertThat(libraryShell.printAllAuthors()).isEqualTo(RIGHT_RESULT_STRING);
         }
@@ -262,13 +262,13 @@ class LibraryShellTest {
         void shouldAdd() {
             Author author = new Author(AUTHOR_ID, SURNAME, NAME);
             Genre genre = new Genre(GENRE_ID, GENRE_TITLE);
-            Map<Long, Genre> genreMap = Collections.singletonMap(GENRE_ID, genre);
-            Map<Long, Author> authorMap = Collections.singletonMap(AUTHOR_ID, author);
-            when(genreService.getAllGenres()).thenReturn(genreMap);
-            when(authorService.getAllAuthors()).thenReturn(authorMap);
+            List<Genre> genres = Collections.singletonList(genre);
+            List<Author> authors = Collections.singletonList(author);
+            when(genreService.getAllGenres()).thenReturn(genres);
+            when(authorService.getAllAuthors()).thenReturn(authors);
 
             Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singleton(genre));
-            when(bookReader.getBook(authorMap, genreMap)).thenReturn(book);
+            when(bookReader.getBook(authors, genres)).thenReturn(book);
             setRightResultMessageCode("shell.book-added");
 
             String resultString = libraryShell.addBook();

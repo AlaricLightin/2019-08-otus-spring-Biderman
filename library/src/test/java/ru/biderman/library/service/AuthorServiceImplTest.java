@@ -11,7 +11,7 @@ import ru.biderman.library.service.exceptions.UpdateAuthorException;
 
 import javax.persistence.PersistenceException;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,9 +35,9 @@ class AuthorServiceImplTest {
     @DisplayName("должен возвращать всех")
     @Test
     void shouldGetAll() {
-        final Map<Long, Author> resultMap = Collections.singletonMap(1L, new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME));
-        when(authorDao.getAllAuthors()).thenReturn(resultMap);
-        assertEquals(resultMap, authorService.getAllAuthors());
+        final List<Author> authors = Collections.singletonList(new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME));
+        when(authorDao.getAllAuthors()).thenReturn(authors);
+        assertEquals(authors, authorService.getAllAuthors());
     }
 
     @DisplayName("должен добавлять автора")

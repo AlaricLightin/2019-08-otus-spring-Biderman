@@ -43,7 +43,7 @@ databaseChangeLog:
                   nullable: false
                   primaryKey: true
             - column:
-                name: title
+                name: genre_text
                 type: varchar(255)
                 constraints:
                   nullable: false

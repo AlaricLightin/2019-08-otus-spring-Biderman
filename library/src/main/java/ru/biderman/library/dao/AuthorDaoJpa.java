@@ -8,9 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @SuppressWarnings("JpaQlInspection")
 @Repository
@@ -40,10 +38,9 @@ public class AuthorDaoJpa implements AuthorDao{
 
     @Override
     @Transactional(readOnly = true)
-    public Map<Long, Author> getAllAuthors() {
+    public List<Author> getAllAuthors() {
         TypedQuery<Author> query = em.createQuery("select a from Author a", Author.class);
-        return query.getResultStream()
-                .collect(Collectors.toMap(Author::getId, Function.identity()));
+        return query.getResultList();
     }
 
     @Override

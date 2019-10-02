@@ -41,8 +41,8 @@ class GenreServiceImplIntegrationTest {
     void shouldAddGenre() throws AddGenreException {
         final String NEW_GENRE = "New genre";
         genreService.addGenre(NEW_GENRE);
-        Genre genre = genreDao.getGenreByTitle(NEW_GENRE);
-        assertThat(genre).hasFieldOrPropertyWithValue("title", NEW_GENRE);
+        Genre genre = genreDao.getGenreByText(NEW_GENRE);
+        assertThat(genre).hasFieldOrPropertyWithValue("text", NEW_GENRE);
     }
 
     @DisplayName("должен бросать исключение, если жанр существует")
@@ -58,7 +58,7 @@ class GenreServiceImplIntegrationTest {
         final String NEW_GENRE = "New genre";
         genreService.updateGenre(EXISTING_GENRE_ID, NEW_GENRE);
         Genre genre = testEntityManager.find(Genre.class, EXISTING_GENRE_ID);
-        assertThat(genre).hasFieldOrPropertyWithValue("title", NEW_GENRE);
+        assertThat(genre).hasFieldOrPropertyWithValue("text", NEW_GENRE);
     }
 
     @DisplayName("должен бросать исключение при редактировании, если имя занято")

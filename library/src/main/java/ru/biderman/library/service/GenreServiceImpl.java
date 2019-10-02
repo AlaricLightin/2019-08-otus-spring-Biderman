@@ -9,7 +9,7 @@ import ru.biderman.library.service.exceptions.DeleteGenreException;
 import ru.biderman.library.service.exceptions.UpdateGenreException;
 
 import javax.persistence.PersistenceException;
-import java.util.Map;
+import java.util.List;
 
 @Service
 class GenreServiceImpl implements GenreService {
@@ -33,7 +33,7 @@ class GenreServiceImpl implements GenreService {
     public void updateGenre(long id, String title) throws UpdateGenreException {
         Genre genre = genreDao.getGenreById(id);
         if (genre != null) {
-            genre.setTitle(title);
+            genre.setText(title);
             try {
                 genreDao.updateGenre(genre);
             } catch (DataAccessException|PersistenceException e) {
@@ -55,7 +55,7 @@ class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public Map<Long, Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         return genreDao.getAllGenres();
     }
 }

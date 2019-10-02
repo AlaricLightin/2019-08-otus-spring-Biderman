@@ -10,8 +10,8 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "title", nullable = false, unique = true)
-    private String title;
+    @Column(name = "genre_text", nullable = false, unique = true)
+    private String text;
 
     public static Genre createNewGenre(String title) {
         return new Genre(0, title);
@@ -20,20 +20,20 @@ public class Genre {
     public Genre() {
     }
 
-    public Genre(long id, String title) {
+    public Genre(long id, String text) {
         this.id = id;
-        this.title = title;
+        this.text = text;
     }
 
     public long getId() {
         return id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getText() {
+        return text;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setText(String text) {
+        this.text = text;
     }
 }
