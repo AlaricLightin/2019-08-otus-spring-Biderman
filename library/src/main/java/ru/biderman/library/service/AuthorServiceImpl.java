@@ -1,12 +1,13 @@
 package ru.biderman.library.service;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.biderman.library.dao.AuthorDao;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.service.exceptions.DeleteAuthorException;
 import ru.biderman.library.service.exceptions.UpdateAuthorException;
 
+import javax.persistence.PersistenceException;
 import java.util.Map;
 
 @Service
@@ -39,7 +40,7 @@ class AuthorServiceImpl implements AuthorService{
         try {
             authorDao.deleteAuthor(id);
         }
-        catch (DaoException e) {
+        catch (DataAccessException| PersistenceException e) {
             throw new DeleteAuthorException();
         }
 

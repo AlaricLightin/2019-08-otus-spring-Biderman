@@ -4,12 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.biderman.library.dao.AuthorDao;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.service.exceptions.DeleteAuthorException;
 import ru.biderman.library.service.exceptions.ServiceException;
 import ru.biderman.library.service.exceptions.UpdateAuthorException;
 
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -50,24 +50,15 @@ class AuthorServiceImplTest {
 
     @DisplayName("должен удалять автора")
     @Test
-    void shouldDeleteAuthor() throws ServiceException, DaoException{
-        //when(authorDao.isUsed(AUTHOR_ID)).thenReturn(false);
+    void shouldDeleteAuthor() throws ServiceException{
         authorService.deleteAuthor(AUTHOR_ID);
         verify(authorDao).deleteAuthor(AUTHOR_ID);
     }
 
-//    @DisplayName("должен бросать исключение, если автор используется")
-//    @Test
-//    void shouldThrowExceptionIfAuthorIsUsed() {
-//        when(authorDao.isUsed(AUTHOR_ID)).thenReturn(true);
-//        assertThrows(DeleteAuthorException.class, () -> authorService.deleteAuthor(AUTHOR_ID));
-//    }
-
     @DisplayName("должен бросать исключение, если автора удалить не удаётся")
     @Test
-    void shouldThrowExceptionIfCouldNotDelete() throws DaoException{
-        //when(authorDao.isUsed(AUTHOR_ID)).thenReturn(false);
-        doThrow(DaoException.class).when(authorDao).deleteAuthor(AUTHOR_ID);
+    void shouldThrowExceptionIfCouldNotDelete(){
+        doThrow(PersistenceException.class).when(authorDao).deleteAuthor(AUTHOR_ID);
         assertThrows(DeleteAuthorException.class, () -> authorService.deleteAuthor(AUTHOR_ID));
     }
 

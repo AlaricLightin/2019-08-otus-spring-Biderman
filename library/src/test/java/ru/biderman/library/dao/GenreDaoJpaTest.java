@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.biderman.library.testutils.TestData.*;
 
 @DisplayName("Dao для работы с жанрами ")
 @DataJpaTest
@@ -23,13 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @EntityScan(basePackageClasses = Genre.class)
 @Import(GenreDaoJpa.class)
 class GenreDaoJpaTest {
-    private static final String EXISTING_GENRE = "Test-genre";
-    private static final String GENRE_FOR_DELETE = "Genre for delete";
-    private static final long EXISTING_GENRE_ID = 1;
-    private static final long GENRE_FOR_DELETE_ID = 2;
-    private static final String NON_EXISTING_GENRE = "NON_EXISTING_GENRE";
-    private static final long NON_EXISTING_GENRE_ID = 3;
-
     @Autowired
     TestEntityManager testEntityManager;
 
@@ -38,7 +31,7 @@ class GenreDaoJpaTest {
 
     @DisplayName("должен добавлять жанр.")
     @Test
-    void shouldAddGenre() throws DaoException {
+    void shouldAddGenre(){
         final String NEW_GENRE_Name = "Test genre 1";
         Genre newGenre = Genre.createNewGenre(NEW_GENRE_Name);
         genreDaoJpa.addGenre(newGenre);
@@ -47,27 +40,14 @@ class GenreDaoJpaTest {
         assertThat(genre).isEqualToComparingFieldByField(newGenre);
     }
 
-    @DisplayName("должен бросать исключение, если добавляемый жанр уже есть")
-    @Test
-    void shouldThrowExceptionIfAddingDuplicate() {
-        assertThrows(DaoException.class, () -> genreDaoJpa.addGenre(Genre.createNewGenre(EXISTING_GENRE)));
-    }
-
     @DisplayName("должен редактировать жанр")
     @Test
-    void shouldUpdateGenre() throws DaoException{
+    void shouldUpdateGenre(){
         final String NEW_TITLE = "New title";
         Genre genre = new Genre(EXISTING_GENRE_ID, NEW_TITLE);
         genreDaoJpa.updateGenre(genre);
         Genre updatedGenre = testEntityManager.find(Genre.class, EXISTING_GENRE_ID);
         assertThat(updatedGenre).isEqualToComparingFieldByField(genre);
-    }
-
-    @DisplayName("должен бросать исключение, если идёт смена названия на существующее")
-    @Test
-    void shouldThrowExceptionIfNameExists() {
-        Genre updatedGenre = new Genre(GENRE_FOR_DELETE_ID, EXISTING_GENRE);
-        assertThrows(DaoException.class, () -> genreDaoJpa.updateGenre(updatedGenre));
     }
 
     @DisplayName("должен возвращать полный список жанров.")
@@ -97,7 +77,7 @@ class GenreDaoJpaTest {
         assertThat(genre).hasFieldOrPropertyWithValue("title", EXISTING_GENRE);
     }
 
-    @DisplayName("должен возвращать null, если жанра с таким id нет")
+    @DisplayName("должен возвращать null, если жанра с таким названием нет")
     @Test
     void shouldGetNullByAbsentTitle() {
         assertNull(genreDaoJpa.getGenreByTitle(NON_EXISTING_GENRE));
@@ -105,15 +85,9 @@ class GenreDaoJpaTest {
 
     @DisplayName("должен удалять жанр.")
     @Test
-    void shouldDeleteGenre() throws DaoException {
+    void shouldDeleteGenre() {
         genreDaoJpa.deleteGenre(GENRE_FOR_DELETE_ID);
         Genre deletedGenre = testEntityManager.find(Genre.class, GENRE_FOR_DELETE_ID);
         assertNull(deletedGenre);
-    }
-
-    @DisplayName("должен бросать исключение, если жанр удалить нельзя")
-    @Test
-    void shouldThrowExceptionIfCouldNotDelete() {
-        assertThrows(DaoException.class, () -> genreDaoJpa.deleteGenre(EXISTING_GENRE_ID));
     }
 }

@@ -4,7 +4,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.library.domain.Author;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,15 +31,11 @@ public class AuthorDaoJpa implements AuthorDao{
     }
 
     @Override
-    @Transactional(rollbackFor = DaoException.class)
-    public void deleteAuthor(long id) throws DaoException{
+    @Transactional
+    public void deleteAuthor(long id){
         Query query = em.createQuery("DELETE FROM Author a WHERE a.id = :id");
         query.setParameter("id", id);
-        try {
-            query.executeUpdate();
-        } catch (PersistenceException e) {
-            throw new DaoException(e);
-        }
+        query.executeUpdate();
     }
 
     @Override

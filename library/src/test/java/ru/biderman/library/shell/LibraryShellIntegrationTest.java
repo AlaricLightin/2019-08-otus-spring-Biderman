@@ -19,25 +19,12 @@ import java.util.Collections;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.biderman.library.testutils.TestData.*;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @DisplayName("Shell-компонент (при интеграционном тесте) ")
 class LibraryShellIntegrationTest {
-    private static final String EXISTING_AUTHOR_SURNAME1 = "Ivanov";
-    private static final String EXISTING_AUTHOR_OTHER_NAMES1 = "Ivan Ivanovich";
-    private static final String EXISTING_AUTHOR_SURNAME2 = "Smith";
-    private static final String EXISTING_AUTHOR_OTHER_NAMES2 = "John";
-    private static final String AUTHOR_FOR_DELETE_SURNAME = "ForDelete";
-    private static final String AUTHOR_FOR_DELETE_OTHER_NAMES = "Author";
-    private static final int EXISTING_AUTHOR_ID = 1;
-    private static final int AUTHOR_FOR_DELETE_ID = 3;
-    private static final String EXISTING_BOOK_NAME = "Book Name";
-    private static final String EXISTING_GENRE = "Test-genre";
-    private static final String GENRE_FOR_DELETE = "Genre for delete";
-    private static final int EXISTING_GENRE_ID = 1;
-    private static final int GENRE_FOR_DELETE_ID = 2;
-
     private static final String PRINT_AUTHORS_COMMAND = "print-authors";
     private static final String PRINT_BOOKS_COMMAND = "print-books";
     private static final String PRINT_GENRES_COMMAND = "print-genres";
@@ -76,7 +63,7 @@ class LibraryShellIntegrationTest {
                         Arrays.asList(
                                 new Author(EXISTING_AUTHOR_ID, EXISTING_AUTHOR_SURNAME1, EXISTING_AUTHOR_OTHER_NAMES1),
                                 new Author(2, EXISTING_AUTHOR_SURNAME2, EXISTING_AUTHOR_OTHER_NAMES2)),
-                        EXISTING_BOOK_NAME,
+                        EXISTING_BOOK_TITLE,
                         Collections.singleton(new Genre(EXISTING_GENRE_ID, EXISTING_GENRE)
                         ))));
     }

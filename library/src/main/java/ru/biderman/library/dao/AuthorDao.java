@@ -7,7 +7,7 @@ import java.util.Map;
 public interface AuthorDao {
     void addAuthor(Author author);
     void updateAuthor(Author author);
-    void deleteAuthor(long id) throws DaoException;
+    void deleteAuthor(long id);
     Map<Long, Author> getAllAuthors();
     Author getAuthorById(long id);
 }

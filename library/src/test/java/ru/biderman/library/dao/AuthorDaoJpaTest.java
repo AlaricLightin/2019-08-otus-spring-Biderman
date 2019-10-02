@@ -16,7 +16,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.biderman.library.testutils.TestData.*;
 
 @DisplayName("Dao для работы с авторами ")
 @DataJpaTest
@@ -24,15 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @EntityScan(basePackageClasses = Author.class)
 @Import(AuthorDaoJpa.class)
 class AuthorDaoJpaTest {
-    private static final String EXISTING_AUTHOR_SURNAME1 = "Ivanov";
-    private static final String EXISTING_AUTHOR_OTHER_NAMES1 = "Ivan Ivanovich";
-    private static final String EXISTING_AUTHOR_SURNAME2 = "Smith";
-    private static final String EXISTING_AUTHOR_OTHER_NAMES2 = "John";
-    private static final String AUTHOR_FOR_DELETE_SURNAME = "ForDelete";
-    private static final String AUTHOR_FOR_DELETE_OTHER_NAMES = "Author";
-    private static final long EXISTING_AUTHOR_ID = 1;
-    private static final long AUTHOR_FOR_DELETE_ID = 3;
-    private static final long NON_EXISTENT_AUTHOR_ID = 100;
+    private static final long NON_EXISTENT_AUTHOR_ID = 4;
 
     @Autowired
     TestEntityManager testEntityManager;
@@ -99,15 +91,9 @@ class AuthorDaoJpaTest {
 
     @DisplayName("должен удалять автора.")
     @Test
-    void shouldDeleteAuthor() throws DaoException {
+    void shouldDeleteAuthor() {
         authorDaoJpa.deleteAuthor(AUTHOR_FOR_DELETE_ID);
         Author deletedAuthor = testEntityManager.find(Author.class, AUTHOR_FOR_DELETE_ID);
         assertNull(deletedAuthor);
-    }
-
-    @DisplayName("должен бросать исключение, если автора удалить нельзя")
-    @Test
-    void shouldThrowExceptionIfCouldNotDelete() {
-        assertThrows(DaoException.class, () -> authorDaoJpa.deleteAuthor(EXISTING_AUTHOR_ID));
     }
 }

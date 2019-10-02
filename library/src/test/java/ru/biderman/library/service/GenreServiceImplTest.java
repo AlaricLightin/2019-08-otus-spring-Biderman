@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.dao.GenreDao;
 import ru.biderman.library.domain.Genre;
 import ru.biderman.library.service.exceptions.AddGenreException;
@@ -12,6 +11,7 @@ import ru.biderman.library.service.exceptions.DeleteGenreException;
 import ru.biderman.library.service.exceptions.ServiceException;
 import ru.biderman.library.service.exceptions.UpdateGenreException;
 
+import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -43,8 +43,7 @@ class GenreServiceImplTest {
 
     @DisplayName("должен добавлять жанр")
     @Test
-    void shouldAddGenre() throws ServiceException, DaoException {
-        when(genreDao.getGenreByTitle(GENRE_TITLE)).thenReturn(null);
+    void shouldAddGenre() throws ServiceException {
         genreService.addGenre(GENRE_TITLE);
         ArgumentCaptor<Genre> argumentCaptor = ArgumentCaptor.forClass(Genre.class);
         verify(genreDao).addGenre(argumentCaptor.capture());
@@ -53,38 +52,28 @@ class GenreServiceImplTest {
 
     @DisplayName("должен бросать исключение, если не удаётся добавить жанр")
     @Test
-    void shouldThrowExceptionIfGenreNotAdded() throws DaoException{
-        doThrow(DaoException.class).when(genreDao).addGenre(any());
-        assertThrows(AddGenreException.class, () -> genreService.addGenre(GENRE_TITLE));
-    }
-
-    @DisplayName("должен бросать исключение, если такой жанр уже есть")
-    @Test
-    void shouldThrowExceptionIfGenreExists() {
-        Genre genre = Genre.createNewGenre(GENRE_TITLE);
-        when(genreDao.getGenreByTitle(GENRE_TITLE)).thenReturn(genre);
+    void shouldThrowExceptionIfGenreNotAdded() {
+        doThrow(PersistenceException.class).when(genreDao).addGenre(any());
         assertThrows(AddGenreException.class, () -> genreService.addGenre(GENRE_TITLE));
     }
 
     @DisplayName("должен удалять жанр")
     @Test
-    void shouldDeleteGenre() throws ServiceException, DaoException{
-        //when(genreDao.isUsed(GENRE_ID)).thenReturn(false);
+    void shouldDeleteGenre() throws ServiceException{
         genreService.deleteGenre(GENRE_ID);
         verify(genreDao).deleteGenre(GENRE_ID);
     }
 
     @DisplayName("должен бросать исключение, если жанр удалить не удаётся")
     @Test
-    void shouldThrowExceptionIfCouldNotDelete() throws DaoException{
-        //when(genreDao.isUsed(GENRE_ID)).thenReturn(false);
-        doThrow(DaoException.class).when(genreDao).deleteGenre(GENRE_ID);
+    void shouldThrowExceptionIfCouldNotDelete() {
+        doThrow(PersistenceException.class).when(genreDao).deleteGenre(GENRE_ID);
         assertThrows(DeleteGenreException.class, () -> genreService.deleteGenre(GENRE_ID));
     }
 
     @DisplayName("должен обновлять жанр")
     @Test
-    void shouldUpdateGenre() throws ServiceException, DaoException{
+    void shouldUpdateGenre() throws ServiceException{
         final String NEW_TITLE = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TITLE);
         when(genreDao.getGenreById(GENRE_ID)).thenReturn(oldGenre);
@@ -103,11 +92,11 @@ class GenreServiceImplTest {
 
     @DisplayName("должен бросать исключение при обновлении, если обновить не удаётся")
     @Test
-    void shouldThrowUpdateExceptionIfCouldNotUpdate() throws DaoException{
+    void shouldThrowUpdateExceptionIfCouldNotUpdate(){
         final String NEW_TITLE = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TITLE);
         when(genreDao.getGenreById(GENRE_ID)).thenReturn(oldGenre);
-        doThrow(DaoException.class).when(genreDao).updateGenre(oldGenre);
+        doThrow(PersistenceException.class).when(genreDao).updateGenre(oldGenre);
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_ID, NEW_TITLE));
     }
 }

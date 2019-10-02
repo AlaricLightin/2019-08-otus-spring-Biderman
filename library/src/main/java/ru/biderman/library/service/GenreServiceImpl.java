@@ -1,13 +1,14 @@
 package ru.biderman.library.service;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.dao.GenreDao;
 import ru.biderman.library.domain.Genre;
 import ru.biderman.library.service.exceptions.AddGenreException;
 import ru.biderman.library.service.exceptions.DeleteGenreException;
 import ru.biderman.library.service.exceptions.UpdateGenreException;
 
+import javax.persistence.PersistenceException;
 import java.util.Map;
 
 @Service
@@ -21,13 +22,9 @@ class GenreServiceImpl implements GenreService {
     @Override
     public void addGenre(String title) throws AddGenreException {
         try {
-            Genre genre = genreDao.getGenreByTitle(title);
-            if (genre == null)
-                genreDao.addGenre(Genre.createNewGenre(title));
-            else
-                throw new AddGenreException();
+            genreDao.addGenre(Genre.createNewGenre(title));
         }
-        catch (DaoException e) {
+        catch (DataAccessException|PersistenceException e) {
             throw new AddGenreException();
         }
     }
@@ -39,7 +36,7 @@ class GenreServiceImpl implements GenreService {
             genre.setTitle(title);
             try {
                 genreDao.updateGenre(genre);
-            } catch (DaoException e) {
+            } catch (DataAccessException|PersistenceException e) {
                 throw new UpdateGenreException();
             }
         }
@@ -52,7 +49,7 @@ class GenreServiceImpl implements GenreService {
         try {
             genreDao.deleteGenre(id);
         }
-        catch (DaoException e) {
+        catch (DataAccessException|PersistenceException e) {
             throw new DeleteGenreException();
         }
     }

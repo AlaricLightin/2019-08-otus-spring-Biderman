@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static ru.biderman.library.testutils.TestData.EXISTING_BOOK_TITLE;
 
 @DisplayName("Dao для работы с книгами ")
 @DataJpaTest
@@ -26,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Import(BookDaoJpa.class)
 class BookDaoJpaTest {
     private static final long EXISTING_BOOK_ID = 1;
-    private static final String EXISTING_BOOK_NAME = "Book Name";
     private static final long BOOK_AUTHOR1_ID = 1;
     private static final long BOOK_AUTHOR2_ID = 2;
     private static final long BOOK_GENRE = 1;
@@ -43,7 +43,7 @@ class BookDaoJpaTest {
         Book book = bookDaoJpa.getBookById(EXISTING_BOOK_ID);
         assertThat(book)
                 .hasFieldOrPropertyWithValue("id", EXISTING_BOOK_ID)
-                .hasFieldOrPropertyWithValue("title", EXISTING_BOOK_NAME)
+                .hasFieldOrPropertyWithValue("title", EXISTING_BOOK_TITLE)
                 .satisfies(book1 ->
                         assertThat(book1.getAuthorList())
                                 .extracting("id")
@@ -61,7 +61,7 @@ class BookDaoJpaTest {
         Book book = books.get(0);
         assertThat(book)
                 .hasFieldOrPropertyWithValue("id", EXISTING_BOOK_ID)
-                .hasFieldOrPropertyWithValue("title", EXISTING_BOOK_NAME)
+                .hasFieldOrPropertyWithValue("title", EXISTING_BOOK_TITLE)
                 .satisfies(book1 ->
                         assertThat(book1.getAuthorList())
                                 .extracting("id")

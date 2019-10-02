@@ -16,51 +16,25 @@ public class GenreDaoJpa implements GenreDao {
     private EntityManager em;
 
     @Override
-    @Transactional(rollbackFor = DaoException.class)
-    public void addGenre(Genre genre) throws DaoException {
-        try {
-            em.persist(genre);
-        } catch (PersistenceException e) {
-            throw new DaoException(e);
-        }
+    @Transactional
+    public void addGenre(Genre genre) {
+        em.persist(genre);
+        em.flush();
     }
 
     @Override
-    @Transactional(rollbackFor = DaoException.class)
-    public void updateGenre(Genre genre) throws DaoException {
-        try {
-            em.merge(genre);
-            em.flush();
-        }
-        catch (PersistenceException e) {
-            throw new DaoException(null);
-        }
-
-        //TODO переделать как в авторах
-//        Genre g = getGenreById(genre.getId());
-//        if (g == null)
-//            throw new DaoException(null);
-//
-//        if (g.getTitle().equals(genre.getTitle()))
-//            return;
-//
-//        Genre gTitle = getGenreByTitle(genre.getTitle());
-//        if (gTitle == null)
-//            em.merge(genre);
-//        else
-//            throw new DaoException(null);
+    @Transactional
+    public void updateGenre(Genre genre) {
+        em.merge(genre);
+        em.flush();
     }
 
     @Override
-    @Transactional(rollbackFor = DaoException.class)
-    public void deleteGenre(long id) throws DaoException {
+    @Transactional
+    public void deleteGenre(long id) {
         Query query = em.createQuery("DELETE FROM Genre g WHERE g.id = :id");
         query.setParameter("id", id);
-        try {
-            query.executeUpdate();
-        } catch (PersistenceException e) {
-            throw new DaoException(e);
-        }
+        query.executeUpdate();
     }
 
     @Override
