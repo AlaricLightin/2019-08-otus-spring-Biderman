@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
+import ru.biderman.library.domain.Comment;
 import ru.biderman.library.domain.Genre;
 import ru.biderman.library.service.AuthorService;
 import ru.biderman.library.service.BookService;
+import ru.biderman.library.service.DatabaseService;
 import ru.biderman.library.service.GenreService;
 import ru.biderman.library.service.exceptions.*;
 import ru.biderman.library.userinputoutput.BookReader;
@@ -20,17 +22,24 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Shell-компонент ")
 class LibraryShellTest {
     private static final String RIGHT_RESULT_STRING = "Success";
     private UserInterface userInterface;
+    private DatabaseService databaseService;
+    private BookReader bookReader;
     private LibraryShell libraryShell;
 
     @BeforeEach
-    void setUserInterface() {
+    void initShell() {
         userInterface = mock(UserInterface.class);
+        databaseService = mock(DatabaseService.class);
+        bookReader = mock(BookReader.class);
+        libraryShell = new LibraryShell(databaseService, bookReader, userInterface);
     }
 
     void setRightResultMessageCode(String messageCode) {
@@ -47,7 +56,7 @@ class LibraryShellTest {
         @BeforeEach
         void init() {
             genreService = mock(GenreService.class);
-            libraryShell = new LibraryShell(null, genreService, null, null, userInterface);
+            when(databaseService.getGenreService()).thenReturn(genreService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
@@ -106,7 +115,6 @@ class LibraryShellTest {
             final String NEW_TEXT = "New title";
             setRightResultMessageCode("shell.genre-updated");
             String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TEXT);
-            ArgumentCaptor<Genre> argumentCaptor = ArgumentCaptor.forClass(Genre.class);
             verify(genreService).updateGenre(GENRE_ID, NEW_TEXT);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
@@ -132,7 +140,7 @@ class LibraryShellTest {
         @BeforeEach
         void init() {
             authorService = mock(AuthorService.class);
-            libraryShell = new LibraryShell(null, null, authorService, null, userInterface);
+            when(databaseService.getAuthorService()).thenReturn(authorService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
@@ -154,21 +162,13 @@ class LibraryShellTest {
 
         @DisplayName("должен добавлять автора")
         @Test
-        void shouldAdd() throws ServiceException {
+        void shouldAdd() {
             setRightResultMessageCode("shell.author-added");
             String resultString = libraryShell.addAuthor(SURNAME, NAME);
             ArgumentCaptor<Author> argument = ArgumentCaptor.forClass(Author.class);
             verify(authorService).addAuthor(argument.capture());
             assertThat(argument.getValue()).isEqualToComparingFieldByField(Author.createNewAuthor(SURNAME, NAME));
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
-        }
-
-        @DisplayName("должен обрабатывать исключение, если нельзя добавить")
-        @Test
-        void shouldCatchCouldNotAdd() throws ServiceException{
-            setRightResultMessageCode("shell.error.add-author-error");
-            doThrow(AddAuthorException.class).when(authorService).addAuthor(any());
-            assertThat(libraryShell.addAuthor(SURNAME, NAME)).isEqualTo(RIGHT_RESULT_STRING);
         }
 
         @DisplayName("должен удалять автора")
@@ -218,7 +218,6 @@ class LibraryShellTest {
         private BookService bookService;
         private GenreService genreService;
         private AuthorService authorService;
-        private BookReader bookReader;
         private static final long BOOK_ID = 1;
         private static final String BOOK_TITLE = "Book title";
         private static final String GENRE_TITLE =  "Some genre";
@@ -232,8 +231,9 @@ class LibraryShellTest {
             bookService = mock(BookService.class);
             genreService = mock(GenreService.class);
             authorService = mock(AuthorService.class);
-            bookReader = mock(BookReader.class);
-            libraryShell = new LibraryShell(bookService, genreService, authorService, bookReader, userInterface);
+            when(databaseService.getAuthorService()).thenReturn(authorService);
+            when(databaseService.getGenreService()).thenReturn(genreService);
+            when(databaseService.getBookService()).thenReturn(bookService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
@@ -280,9 +280,75 @@ class LibraryShellTest {
         @Test
         void shouldDelete() {
             setRightResultMessageCode("shell.book-deleted");
+            Book book = mock(Book.class);
+            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
             String resultString = libraryShell.deleteBook(BOOK_ID);
-            verify(bookService).deleteBook(BOOK_ID);
+            verify(bookService).deleteBook(book);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
+
+        @DisplayName("должен сообщать при удалении, если книги нет")
+        @Test
+        void shouldReturnErrorIfDeleteButBookAbsent() {
+            setRightResultMessageCode("shell.error.no-such-book");
+            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
+            String resultString = libraryShell.deleteBook(BOOK_ID);
+            assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
+        }
+
+        @DisplayName("должен добавлять комментарий")
+        @Test
+        void shouldAddComment() {
+            setRightResultMessageCode("shell.comment-added");
+            Book book = mock(Book.class);
+            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+            final String COMMENT_TEXT = "Comment Text";
+
+            String result = libraryShell.addComment(BOOK_ID, COMMENT_TEXT);
+            ArgumentCaptor<Comment> argument = ArgumentCaptor.forClass(Comment.class);
+            verify(bookService).addComment(eq(book), argument.capture());
+
+            assertThat(argument.getValue()).hasFieldOrPropertyWithValue("text", COMMENT_TEXT);
+            assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+        }
+
+        @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
+        @Test
+        void shouldReturnErrorIfAddCommentToAbsentBook() {
+            setRightResultMessageCode("shell.error.no-such-book");
+            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
+            assertThat(libraryShell.addComment(BOOK_ID, "")).isEqualTo(RIGHT_RESULT_STRING);
+        }
+
+        @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
+        @Test
+        void shouldReturnErrorIfDeleteCommentToAbsentBook() {
+            setRightResultMessageCode("shell.error.no-such-book");
+            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
+            assertThat(libraryShell.deleteComment(BOOK_ID, 0)).isEqualTo(RIGHT_RESULT_STRING);
+        }
+
+        @DisplayName("должен удалять комментарий")
+        @Test
+        void shouldDeleteComment() {
+            setRightResultMessageCode("shell.comment-deleted");
+            final long COMMENT_ID = 1;
+            Book book = mock(Book.class);
+            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+
+            String result = libraryShell.deleteComment(BOOK_ID, COMMENT_ID);
+            verify(bookService).deleteComment(book, COMMENT_ID);
+            assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+        }
+    }
+
+    @DisplayName("должен проверять залогиненность")
+    @Test
+    void shouldTestLoginAvailability() {
+        assertFalse(libraryShell.isLoggedIn().isAvailable());
+        libraryShell.login("User");
+        assertTrue(libraryShell.isLoggedIn().isAvailable());
+        libraryShell.logout();
+        assertFalse(libraryShell.isLoggedIn().isAvailable());
     }
 }

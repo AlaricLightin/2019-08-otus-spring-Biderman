@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.library.domain.Book;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -24,10 +24,14 @@ public class BookDaoJpa implements BookDao {
 
     @Override
     @Transactional
-    public void deleteBook(long id) {
-        Query query = em.createQuery("DELETE FROM Book b WHERE b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+    public void updateBook(Book book) {
+        em.merge(book);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBook(Book book) {
+        em.remove(book);
     }
 
     @Override
@@ -40,6 +44,14 @@ public class BookDaoJpa implements BookDao {
     @Override
     @Transactional(readOnly = true)
     public Book getBookById(long id) {
-        return em.find(Book.class, id);
+        TypedQuery<Book> query = em.createQuery("select b from Book b left join fetch b.commentList where b.id = :id",
+                Book.class);
+        query.setParameter("id", id);
+        try {
+            return query.getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
     }
 }

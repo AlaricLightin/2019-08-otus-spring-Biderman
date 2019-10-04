@@ -11,14 +11,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
+import ru.biderman.library.domain.Comment;
 import ru.biderman.library.domain.Genre;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static ru.biderman.library.testutils.TestData.EXISTING_BOOK_TITLE;
+import static ru.biderman.library.testutils.TestData.*;
 
 @DisplayName("Dao для работы с книгами ")
 @DataJpaTest
@@ -26,7 +29,6 @@ import static ru.biderman.library.testutils.TestData.EXISTING_BOOK_TITLE;
 @EntityScan(basePackages = "ru.biderman.library.domain")
 @Import(BookDaoJpa.class)
 class BookDaoJpaTest {
-    private static final long EXISTING_BOOK_ID = 1;
     private static final long BOOK_AUTHOR1_ID = 1;
     private static final long BOOK_AUTHOR2_ID = 2;
     private static final long BOOK_GENRE = 1;
@@ -53,6 +55,13 @@ class BookDaoJpaTest {
                         .containsOnly(BOOK_GENRE));
     }
 
+    @DisplayName("должен возвращать null, если книги нет")
+    @Test
+    void shouldGetNullIfBookAbsent() {
+        final long NON_EXISTING_BOOK_ID = 100;
+        assertNull(bookDaoJpa.getBookById(NON_EXISTING_BOOK_ID));
+    }
+
     @DisplayName("должен возвращать все книги")
     @Test
     void shouldGetAllBooks() {
@@ -74,7 +83,10 @@ class BookDaoJpaTest {
     @DisplayName("должен удалять книгу по id")
     @Test
     void shouldDeleteBookById() {
-        bookDaoJpa.deleteBook(EXISTING_BOOK_ID);
+        Book book = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
+        bookDaoJpa.deleteBook(book);
+        testEntityManager.flush();
+        testEntityManager.detach(book);
         Book deletedBook = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
         assertNull(deletedBook);
     }
@@ -92,5 +104,28 @@ class BookDaoJpaTest {
         assertThat(book.getId()).isGreaterThan(0);
         Book newBook = testEntityManager.find(Book.class, book.getId());
         assertThat(newBook).isEqualToComparingFieldByField(book);
+    }
+
+    @DisplayName("должен обновлять информацию о книге")
+    @Test
+    void shouldUpdateBook() {
+        Book book = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
+
+        final String USER = "user";
+        final ZonedDateTime dateTime = ZonedDateTime.now();
+        final String TEXT = "text";
+
+        final String EXISTING_COMMENT_USER = "user";
+
+        Comment comment = new Comment(USER, dateTime, TEXT);
+        book.getCommentList().add(comment);
+
+        bookDaoJpa.updateBook(book);
+
+        testEntityManager.detach(book);
+        Book updatedBook = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
+        assertThat(updatedBook.getCommentList())
+                .extracting("user", "text")
+                .containsOnly(tuple(USER, TEXT), tuple(EXISTING_COMMENT_USER, EXISTING_COMMENT_TEXT));
     }
 }

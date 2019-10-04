@@ -2,6 +2,7 @@ package ru.biderman.library.userinputoutput;
 
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
+import ru.biderman.library.domain.Comment;
 import ru.biderman.library.domain.Genre;
 
 import java.util.stream.Collectors;
@@ -28,5 +29,9 @@ public class UIUtils {
                 .collect(Collectors.joining(", "));
 
         return String.format("%d. %s\"%s\". %s", book.getId(), authorString, book.getTitle(), genreString);
+    }
+
+    public static String getCommentString(Comment comment) {
+        return String.format("(id:%d) %tc %s: %s", comment.getId(), comment.getDateTime(), comment.getUser(), comment.getText());
     }
 }

@@ -1,6 +1,7 @@
 package ru.biderman.library.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +25,10 @@ public class Book {
     @JoinTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres;
+
+    @OneToMany(targetEntity = Comment.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "book_id", nullable = false)
+    private List<Comment> commentList = new ArrayList<>();
 
     public static Book createNewBook(List<Author> authorList, String title, Set<Genre> genreList) {
         return new Book(0, authorList, title, genreList);
@@ -53,5 +58,9 @@ public class Book {
 
     public Set<Genre> getGenres() {
         return genres;
+    }
+
+    public List<Comment> getCommentList() {
+        return commentList;
     }
 }

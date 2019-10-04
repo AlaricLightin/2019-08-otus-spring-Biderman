@@ -30,7 +30,12 @@ class LibraryShellIntegrationTest {
     private static final String PRINT_GENRES_COMMAND = "print-genres";
     private static final String DELETE_GENRE_COMMAND = "delete-genre %d";
     private static final String ADD_GENRE_COMMAND = "add-genre %s";
+    private static final String ADD_COMMENT_COMMAND = "add-comment %d %s";
+    private static final String PRINT_COMMENT_COMMAND = "print-comments %d";
+    private static final String DELETE_COMMENT_COMMAND = "delete-comment %d %d";
+    private static final String LOGIN_COMMAND = "login %s";
 
+    private static final String USER = "User";
 
     @Autowired
     Shell shell;
@@ -81,6 +86,7 @@ class LibraryShellIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void shouldDeleteUnusedGenre() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
         String res = (String) shell.evaluate(() -> String.format(DELETE_GENRE_COMMAND, GENRE_FOR_DELETE_ID));
         assertThat(res).isEqualTo(getMessage("shell.genre-deleted"));
 
@@ -91,6 +97,7 @@ class LibraryShellIntegrationTest {
     @DisplayName("не должен удалять используемый жанр")
     @Test
     void shouldNotDeleteUsedGenre() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
         String res = (String) shell.evaluate(() -> String.format(DELETE_GENRE_COMMAND, EXISTING_GENRE_ID));
         assertThat(res).isEqualTo(getMessage("shell.error.delete-genre-error"));
 
@@ -103,7 +110,36 @@ class LibraryShellIntegrationTest {
     @DisplayName("не должен добавлять существующий жанр")
     @Test
     void shouldNotAddExistingGenre() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
         String res = (String) shell.evaluate(() -> String.format(ADD_GENRE_COMMAND, EXISTING_GENRE));
         assertThat(res).isEqualTo(getMessage("shell.error.add-genre-error"));
+    }
+
+    @DisplayName("должен добавлять комментарий")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    void shouldAddComment() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
+        final String commentText = "Comment";
+        String res = (String) shell.evaluate(() -> String.format(ADD_COMMENT_COMMAND, EXISTING_BOOK_ID, commentText));
+        assertThat(res).isEqualTo(getMessage("shell.comment-added"));
+
+        res = (String) shell.evaluate(() -> String.format(PRINT_COMMENT_COMMAND, EXISTING_BOOK_ID));
+        assertThat(res)
+                .contains(commentText)
+                .contains(USER);
+    }
+
+    @DisplayName("должен удалять комментарий")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    void shouldDeleteComment() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
+        final long EXISTING_COMMENT_ID = 1;
+        String res = (String) shell.evaluate(() -> String.format(DELETE_COMMENT_COMMAND, EXISTING_BOOK_ID, EXISTING_COMMENT_ID));
+        assertThat(res).isEqualTo(getMessage("shell.comment-deleted"));
+
+        res = (String) shell.evaluate(() -> String.format(PRINT_COMMENT_COMMAND, EXISTING_BOOK_ID));
+        assertThat(res).doesNotContain(EXISTING_COMMENT_TEXT);
     }
 }
