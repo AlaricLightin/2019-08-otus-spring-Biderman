@@ -1,0 +1,22 @@
+package ru.biderman.library.userinputoutput;
+
+import org.springframework.context.MessageSource;
+import ru.biderman.library.userinputoutput.exceptions.EmptyBookTitleException;
+import ru.biderman.library.userinputoutput.exceptions.UserInputException;
+
+import java.util.Locale;
+
+class BookTitleInputUI implements DataInputUI<String>{
+    @Override
+    public String getPrompt(MessageSource messageSource, Locale locale) {
+        return messageSource.getMessage("shell.book-title-prompt", null, locale);
+    }
+
+    @Override
+    public String convertString(String s) throws UserInputException {
+        if (!s.isEmpty())
+            return s;
+        else
+            throw new EmptyBookTitleException();
+    }
+}
