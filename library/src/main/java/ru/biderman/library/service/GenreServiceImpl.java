@@ -31,17 +31,13 @@ class GenreServiceImpl implements GenreService {
 
     @Override
     public void updateGenre(long id, String title) throws UpdateGenreException {
-        Genre genre = genreDao.getGenreById(id);
-        if (genre != null) {
-            genre.setText(title);
-            try {
-                genreDao.updateGenre(genre);
-            } catch (DataAccessException|PersistenceException e) {
-                throw new UpdateGenreException();
-            }
-        }
-        else
+        Genre genre = genreDao.getGenreById(id).orElseThrow(UpdateGenreException::new);
+        genre.setText(title);
+        try {
+            genreDao.updateGenre(genre);
+        } catch (DataAccessException|PersistenceException e) {
             throw new UpdateGenreException();
+        }
     }
 
     @Override

@@ -32,7 +32,8 @@ class LibraryShellIntegrationTest {
     private static final String ADD_GENRE_COMMAND = "add-genre %s";
     private static final String ADD_COMMENT_COMMAND = "add-comment %d %s";
     private static final String PRINT_COMMENT_COMMAND = "print-comments %d";
-    private static final String DELETE_COMMENT_COMMAND = "delete-comment %d %d";
+    private static final String DELETE_COMMENT_COMMAND = "delete-comment %d";
+    private static final String DELETE_BOOK_COMMAND = "delete-book %d";
     private static final String LOGIN_COMMAND = "login %s";
 
     private static final String USER = "User";
@@ -136,10 +137,22 @@ class LibraryShellIntegrationTest {
     void shouldDeleteComment() {
         shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
         final long EXISTING_COMMENT_ID = 1;
-        String res = (String) shell.evaluate(() -> String.format(DELETE_COMMENT_COMMAND, EXISTING_BOOK_ID, EXISTING_COMMENT_ID));
+        String res = (String) shell.evaluate(() -> String.format(DELETE_COMMENT_COMMAND, EXISTING_COMMENT_ID));
         assertThat(res).isEqualTo(getMessage("shell.comment-deleted"));
 
         res = (String) shell.evaluate(() -> String.format(PRINT_COMMENT_COMMAND, EXISTING_BOOK_ID));
         assertThat(res).doesNotContain(EXISTING_COMMENT_TEXT);
+    }
+
+    @DisplayName("должен удалять книгу")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    void shouldDeleteBook() {
+        shell.evaluate(() -> String.format(LOGIN_COMMAND, USER));
+        String res = (String) shell.evaluate(() -> String.format(DELETE_BOOK_COMMAND, EXISTING_BOOK_ID));
+        assertThat(res).isEqualTo(getMessage("shell.book-deleted"));
+
+        res = (String) shell.evaluate(() -> PRINT_BOOKS_COMMAND);
+        assertThat(res).isEqualTo(getMessage("shell.error.no-books-found"));
     }
 }

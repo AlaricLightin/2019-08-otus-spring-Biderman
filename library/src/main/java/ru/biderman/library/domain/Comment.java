@@ -20,13 +20,17 @@ public class Comment {
     @Column(name = "comment_text")
     private String text;
 
+    @ManyToOne(targetEntity = Book.class, optional = false)
+    private Book book;
+
     public Comment() {
     }
 
-    public Comment(String user, ZonedDateTime dateTime, String text) {
+    public Comment(String user, ZonedDateTime dateTime, String text, Book book) {
         this.user = user;
         this.dateTime = dateTime;
         this.text = text;
+        this.book = book;
     }
 
     public long getId() {
@@ -43,5 +47,9 @@ public class Comment {
 
     public String getText() {
         return text;
+    }
+
+    public Book getBook() {
+        return book;
     }
 }

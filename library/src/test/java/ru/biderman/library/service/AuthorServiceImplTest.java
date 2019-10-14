@@ -12,6 +12,7 @@ import ru.biderman.library.service.exceptions.UpdateAuthorException;
 import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,7 @@ class AuthorServiceImplTest {
 
     @DisplayName("должен добавлять автора")
     @Test
-    void shouldAddAuthor() throws ServiceException {
+    void shouldAddAuthor() {
         Author author = Author.createNewAuthor(AUTHOR_SURNAME, AUTHOR_NAME);
         authorService.addAuthor(author);
         verify(authorDao).addAuthor(author);
@@ -69,7 +70,7 @@ class AuthorServiceImplTest {
         String NEW_NAME = "New-name";
         Author newAuthor = Author.createNewAuthor(NEW_SURNAME, NEW_NAME);
         Author oldAuthor = new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME);
-        when(authorDao.getAuthorById(AUTHOR_ID)).thenReturn(oldAuthor);
+        when(authorDao.getAuthorById(AUTHOR_ID)).thenReturn(Optional.of(oldAuthor));
         authorService.updateAuthor(AUTHOR_ID, newAuthor);
         verify(authorDao).updateAuthor(oldAuthor);
         assertThat(oldAuthor)
@@ -77,11 +78,11 @@ class AuthorServiceImplTest {
                 .hasFieldOrPropertyWithValue("otherNames", NEW_NAME);
     }
 
-    @DisplayName("должен бросать исключение при обновлении, если жанра нет")
+    @DisplayName("должен бросать исключение при обновлении, если автора нет")
     @Test
-    void shouldThrowUpdateExceptionIfNoGenre() {
+    void shouldThrowUpdateExceptionIfNoAuthor() {
         Author newAuthor = Author.createNewAuthor("New-surname", "New-name");
-        when(authorDao.getAuthorById(AUTHOR_ID)).thenReturn(null);
+        when(authorDao.getAuthorById(AUTHOR_ID)).thenReturn(Optional.empty());
         assertThrows(UpdateAuthorException.class, () -> authorService.updateAuthor(AUTHOR_ID, newAuthor));
     }
 }

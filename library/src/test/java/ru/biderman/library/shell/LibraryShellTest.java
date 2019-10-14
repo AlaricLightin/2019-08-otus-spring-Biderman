@@ -9,15 +9,13 @@ import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Comment;
 import ru.biderman.library.domain.Genre;
-import ru.biderman.library.service.AuthorService;
-import ru.biderman.library.service.BookService;
-import ru.biderman.library.service.DatabaseService;
-import ru.biderman.library.service.GenreService;
+import ru.biderman.library.service.*;
 import ru.biderman.library.service.exceptions.*;
 import ru.biderman.library.userinputoutput.BookReader;
 import ru.biderman.library.userinputoutput.UIUtils;
 import ru.biderman.library.userinputoutput.UserInterface;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -283,62 +281,80 @@ class LibraryShellTest {
             Book book = mock(Book.class);
             when(bookService.getBookById(BOOK_ID)).thenReturn(book);
             String resultString = libraryShell.deleteBook(BOOK_ID);
-            verify(bookService).deleteBook(book);
+            verify(bookService).deleteById(BOOK_ID);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
 
-        @DisplayName("должен сообщать при удалении, если книги нет")
-        @Test
-        void shouldReturnErrorIfDeleteButBookAbsent() {
-            setRightResultMessageCode("shell.error.no-such-book");
-            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
-            String resultString = libraryShell.deleteBook(BOOK_ID);
-            assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
-        }
+        @Nested
+        @DisplayName("при работе с комментариями")
+        class Comments {
+            private CommentService commentService;
 
-        @DisplayName("должен добавлять комментарий")
-        @Test
-        void shouldAddComment() {
-            setRightResultMessageCode("shell.comment-added");
-            Book book = mock(Book.class);
-            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
-            final String COMMENT_TEXT = "Comment Text";
+            private static final long BOOK_ID = 1;
 
-            String result = libraryShell.addComment(BOOK_ID, COMMENT_TEXT);
-            ArgumentCaptor<Comment> argument = ArgumentCaptor.forClass(Comment.class);
-            verify(bookService).addComment(eq(book), argument.capture());
+            @BeforeEach
+            void init() {
+                commentService = mock(CommentService.class);
+                when(databaseService.getCommentService()).thenReturn(commentService);
+            }
 
-            assertThat(argument.getValue()).hasFieldOrPropertyWithValue("text", COMMENT_TEXT);
-            assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
-        }
+            @DisplayName("должен добавлять комментарий")
+            @Test
+            void shouldAddComment() {
+                setRightResultMessageCode("shell.comment-added");
+                Book book = mock(Book.class);
+                when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+                final String COMMENT_TEXT = "Comment Text";
 
-        @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
-        @Test
-        void shouldReturnErrorIfAddCommentToAbsentBook() {
-            setRightResultMessageCode("shell.error.no-such-book");
-            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
-            assertThat(libraryShell.addComment(BOOK_ID, "")).isEqualTo(RIGHT_RESULT_STRING);
-        }
+                String result = libraryShell.addComment(BOOK_ID, COMMENT_TEXT);
+                ArgumentCaptor<Comment> argument = ArgumentCaptor.forClass(Comment.class);
+                verify(commentService).addComment(argument.capture());
 
-        @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
-        @Test
-        void shouldReturnErrorIfDeleteCommentToAbsentBook() {
-            setRightResultMessageCode("shell.error.no-such-book");
-            when(bookService.getBookById(BOOK_ID)).thenReturn(null);
-            assertThat(libraryShell.deleteComment(BOOK_ID, 0)).isEqualTo(RIGHT_RESULT_STRING);
-        }
+                assertThat(argument.getValue())
+                        .hasFieldOrPropertyWithValue("text", COMMENT_TEXT)
+                        .hasFieldOrPropertyWithValue("book", book);
+                assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+            }
 
-        @DisplayName("должен удалять комментарий")
-        @Test
-        void shouldDeleteComment() {
-            setRightResultMessageCode("shell.comment-deleted");
-            final long COMMENT_ID = 1;
-            Book book = mock(Book.class);
-            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+            @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
+            @Test
+            void shouldReturnErrorIfAddCommentToAbsentBook() {
+                setRightResultMessageCode("shell.error.no-such-book");
+                when(bookService.getBookById(BOOK_ID)).thenReturn(null);
+                assertThat(libraryShell.addComment(BOOK_ID, "")).isEqualTo(RIGHT_RESULT_STRING);
+            }
 
-            String result = libraryShell.deleteComment(BOOK_ID, COMMENT_ID);
-            verify(bookService).deleteComment(book, COMMENT_ID);
-            assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+            @DisplayName("должен удалять комментарий")
+            @Test
+            void shouldDeleteComment() {
+                setRightResultMessageCode("shell.comment-deleted");
+                final long COMMENT_ID = 1;
+                String result = libraryShell.deleteComment(COMMENT_ID);
+                verify(commentService).deleteCommentById(COMMENT_ID);
+                assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+            }
+
+            @DisplayName("должен печатать комментарии по книгам")
+            @Test
+            void shouldPrintComments() {
+                Author author = new Author(AUTHOR_ID, SURNAME, NAME);
+                Genre genre = new Genre(GENRE_ID, GENRE_TITLE);
+                Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singleton(genre));
+
+                final String user = "User";
+                final String commentText = "Comment text";
+                Comment comment = new Comment(user, ZonedDateTime.now(), commentText, book);
+
+                when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+                when(commentService.getCommentsByBook(book)).thenReturn(Collections.singletonList(comment));
+                String result = libraryShell.printComments(BOOK_ID);
+                assertThat(result)
+                        .contains(SURNAME)
+                        .contains(NAME)
+                        .contains(BOOK_TITLE)
+                        .contains(user)
+                        .contains(commentText);
+            }
         }
     }
 

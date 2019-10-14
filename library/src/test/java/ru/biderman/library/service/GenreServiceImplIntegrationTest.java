@@ -35,16 +35,6 @@ class GenreServiceImplIntegrationTest {
     @Autowired
     TestEntityManager testEntityManager;
 
-    @DisplayName("должен добавлять жанр")
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
-    @Test
-    void shouldAddGenre() throws AddGenreException {
-        final String NEW_GENRE = "New genre";
-        genreService.addGenre(NEW_GENRE);
-        Genre genre = genreDao.getGenreByText(NEW_GENRE);
-        assertThat(genre).hasFieldOrPropertyWithValue("text", NEW_GENRE);
-    }
-
     @DisplayName("должен бросать исключение, если жанр существует")
     @Test
     void shouldThrowExceptionIfGenreExists()  {

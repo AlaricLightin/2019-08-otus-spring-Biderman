@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Genre;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -60,27 +61,16 @@ class GenreDaoJpaTest {
     @DisplayName("должен возвращать жанр по id.")
     @Test
     void shouldGetGenreById() {
-        Genre genre = genreDaoJpa.getGenreById(EXISTING_GENRE_ID);
-        assertThat(genre).hasFieldOrPropertyWithValue("text", EXISTING_GENRE);
+        Optional<Genre> genre = genreDaoJpa.getGenreById(EXISTING_GENRE_ID);
+        assertThat(genre)
+                .isPresent()
+                .map(Genre::getText).contains(EXISTING_GENRE);
     }
 
-    @DisplayName("должен возвращать null, если жанра с таким id нет")
+    @DisplayName("должен возвращать пустой Optional, если жанра с таким id нет")
     @Test
     void shouldGetNullByAbsentId() {
-        assertNull(genreDaoJpa.getGenreById(NON_EXISTING_GENRE_ID));
-    }
-
-    @DisplayName("должен возвращать жанр по названию.")
-    @Test
-    void shouldGetGenreByTitle() {
-        Genre genre = genreDaoJpa.getGenreByText(EXISTING_GENRE);
-        assertThat(genre).hasFieldOrPropertyWithValue("text", EXISTING_GENRE);
-    }
-
-    @DisplayName("должен возвращать null, если жанра с таким названием нет")
-    @Test
-    void shouldGetNullByAbsentTitle() {
-        assertNull(genreDaoJpa.getGenreByText(NON_EXISTING_GENRE));
+        assertThat(genreDaoJpa.getGenreById(NON_EXISTING_GENRE_ID)).isEmpty();
     }
 
     @DisplayName("должен удалять жанр.")

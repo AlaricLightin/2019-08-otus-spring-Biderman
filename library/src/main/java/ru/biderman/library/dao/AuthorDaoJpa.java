@@ -9,27 +9,26 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("JpaQlInspection")
 @Repository
+@Transactional
 public class AuthorDaoJpa implements AuthorDao{
     @PersistenceContext
     private EntityManager em;
 
     @Override
-    @Transactional
     public void addAuthor(Author author) {
         em.persist(author);
     }
 
     @Override
-    @Transactional
     public void updateAuthor(Author author) {
         em.merge(author);
     }
 
     @Override
-    @Transactional
     public void deleteAuthor(long id){
         Query query = em.createQuery("DELETE FROM Author a WHERE a.id = :id");
         query.setParameter("id", id);
@@ -45,7 +44,7 @@ public class AuthorDaoJpa implements AuthorDao{
 
     @Override
     @Transactional(readOnly = true)
-    public Author getAuthorById(long id) {
-        return em.find(Author.class, id);
+    public Optional<Author> getAuthorById(long id) {
+        return Optional.ofNullable(em.find(Author.class, id));
     }
 }

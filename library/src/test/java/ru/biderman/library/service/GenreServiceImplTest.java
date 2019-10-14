@@ -14,6 +14,7 @@ import ru.biderman.library.service.exceptions.UpdateGenreException;
 import javax.persistence.PersistenceException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -76,7 +77,7 @@ class GenreServiceImplTest {
     void shouldUpdateGenre() throws ServiceException{
         final String NEW_TEXT = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TEXT);
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(oldGenre);
+        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
         genreService.updateGenre(GENRE_ID, NEW_TEXT);
         verify(genreDao).updateGenre(oldGenre);
         assertThat(oldGenre).hasFieldOrPropertyWithValue("text", NEW_TEXT);
@@ -86,7 +87,7 @@ class GenreServiceImplTest {
     @Test
     void shouldThrowUpdateExceptionIfNoGenre() {
         final String NEW_TEXT = "New genre";
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(null);
+        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.empty());
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_ID, NEW_TEXT));
     }
 
@@ -95,7 +96,7 @@ class GenreServiceImplTest {
     void shouldThrowUpdateExceptionIfCouldNotUpdate(){
         final String NEW_TEXT = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TEXT);
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(oldGenre);
+        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
         doThrow(PersistenceException.class).when(genreDao).updateGenre(oldGenre);
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_ID, NEW_TEXT));
     }

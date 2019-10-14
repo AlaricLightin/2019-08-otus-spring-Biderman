@@ -1,6 +1,7 @@
 package ru.biderman.library.dao;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.library.domain.Book;
 
@@ -12,26 +13,32 @@ import java.util.List;
 
 @SuppressWarnings("JpaQlInspection")
 @Repository
+@Transactional
 public class BookDaoJpa implements BookDao {
     @PersistenceContext
     private EntityManager em;
 
+    private final CommentDao commentDao;
+
+    public BookDaoJpa(CommentDao commentDao) {
+        this.commentDao = commentDao;
+    }
+
     @Override
-    @Transactional
     public void addBook(Book book) {
         em.persist(book);
     }
 
-    @Override
-    @Transactional
-    public void updateBook(Book book) {
-        em.merge(book);
+    private void deleteBook(Book book) {
+        commentDao.deleteAllCommentsByBook(book);
+        em.remove(book);
     }
 
     @Override
-    @Transactional
-    public void deleteBook(Book book) {
-        em.remove(book);
+    public void deleteById(long id) {
+        Book book = getBookById(id);
+        if (book != null)
+            deleteBook(book);
     }
 
     @Override
@@ -42,9 +49,9 @@ public class BookDaoJpa implements BookDao {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public Book getBookById(long id) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b left join fetch b.commentList where b.id = :id",
+        TypedQuery<Book> query = em.createQuery("select b from Book b where b.id = :id",
                 Book.class);
         query.setParameter("id", id);
         try {

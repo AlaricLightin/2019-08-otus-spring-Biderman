@@ -21,4 +21,6 @@ public class TestData {
     public static final long EXISTING_BOOK_ID = 1;
 
     public static final String EXISTING_COMMENT_TEXT = "Comment-text";
+    public static final String EXISTING_COMMENT_USER = "user";
+    public static final long EXISTING_COMMENT_ID = 1;
 }

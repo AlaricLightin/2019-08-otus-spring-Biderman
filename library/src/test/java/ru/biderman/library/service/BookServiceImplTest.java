@@ -5,9 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.biderman.library.dao.BookDao;
 import ru.biderman.library.domain.Book;
-import ru.biderman.library.domain.Comment;
 
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +43,7 @@ class BookServiceImplTest {
 
     @DisplayName("должен добавлять книгу")
     @Test
-    void shouldAddAuthor() {
+    void shouldAddBook() {
         Book book = mock(Book.class);
         bookService.addBook(book);
         verify(bookDao).addBook(book);
@@ -53,38 +51,9 @@ class BookServiceImplTest {
 
     @DisplayName("должен удалять книгу")
     @Test
-    void shouldDeleteAuthor() {
-        Book book = mock(Book.class);
-        bookService.deleteBook(book);
-        verify(bookDao).deleteBook(book);
-    }
-
-    @DisplayName("должен добавлять комментарий")
-    @Test
-    void shouldAddComment() {
-        Book book = new Book(0, Collections.emptyList(), "Title", Collections.emptySet());
-        Comment comment = new Comment("User", ZonedDateTime.now(), "Text");
-
-        bookService.addComment(book, comment);
-
-        verify(bookDao).updateBook(book);
-        assertThat(book.getCommentList()).containsOnly(comment);
-    }
-
-    @DisplayName("должен удалять комментарий")
-    @Test
-    void shouldDeleteComment() {
-        Book book = new Book(0, Collections.emptyList(), "Title", Collections.emptySet());
-        Comment comment = new Comment("User", ZonedDateTime.now(), "Text");
-
-        Comment spyComment = spy(comment);
-        final long commentId = 1;
-        when(spyComment.getId()).thenReturn(commentId);
-        book.getCommentList().add(spyComment);
-
-        bookService.deleteComment(book, commentId);
-
-        verify(bookDao).updateBook(book);
-        assertThat(book.getCommentList()).hasSize(0);
+    void shouldDeleteBook() {
+        final long BOOK_ID = 1;
+        bookService.deleteById(BOOK_ID);
+        verify(bookDao).deleteById(BOOK_ID);
     }
 }

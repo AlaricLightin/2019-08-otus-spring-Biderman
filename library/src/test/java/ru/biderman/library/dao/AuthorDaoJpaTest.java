@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -59,16 +60,17 @@ class AuthorDaoJpaTest {
     @DisplayName("должен возвращать автора по id.")
     @Test
     void shouldGetAuthorById() {
-        Author author = authorDaoJpa.getAuthorById(EXISTING_AUTHOR_ID);
+        Optional<Author> author = authorDaoJpa.getAuthorById(EXISTING_AUTHOR_ID);
         assertThat(author)
-                .hasFieldOrPropertyWithValue("surname", EXISTING_AUTHOR_SURNAME1)
-                .hasFieldOrPropertyWithValue("otherNames", EXISTING_AUTHOR_OTHER_NAMES1);
+                .isPresent()
+                .map(a -> tuple(a.getSurname(), a.getOtherNames()))
+                .contains(tuple(EXISTING_AUTHOR_SURNAME1, EXISTING_AUTHOR_OTHER_NAMES1));
     }
 
-    @DisplayName("должен возвращать null, если автора нет")
+    @DisplayName("должен возвращать пустой optional, если автора нет")
     @Test
     void shouldGetNullIfAuthorAbsent() {
-        assertNull(authorDaoJpa.getAuthorById(NON_EXISTENT_AUTHOR_ID));
+        assertThat(authorDaoJpa.getAuthorById(NON_EXISTENT_AUTHOR_ID)).isEmpty();
     }
 
     @DisplayName("должен редактировать автора")

@@ -25,14 +25,10 @@ class AuthorServiceImpl implements AuthorService{
 
     @Override
     public void updateAuthor(long id, Author author) throws UpdateAuthorException {
-        Author oldAuthor = authorDao.getAuthorById(id);
-        if (oldAuthor != null) {
-            oldAuthor.setSurname(author.getSurname());
-            oldAuthor.setOtherNames(author.getOtherNames());
-            authorDao.updateAuthor(oldAuthor);
-        }
-        else
-            throw new UpdateAuthorException();
+        Author oldAuthor = authorDao.getAuthorById(id).orElseThrow(UpdateAuthorException::new);
+        oldAuthor.setSurname(author.getSurname());
+        oldAuthor.setOtherNames(author.getOtherNames());
+        authorDao.updateAuthor(oldAuthor);
     }
 
     @Override

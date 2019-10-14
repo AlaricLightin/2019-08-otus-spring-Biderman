@@ -150,21 +150,16 @@ public class LibraryShell {
 
     @ShellMethod(value = "Delete book", key = {"delete-book"})
     String deleteBook(long id) {
-        Book book = databaseService.getBookService().getBookById(id);
-        if (book != null) {
-            databaseService.getBookService().deleteBook(book);
-            return userInterface.getText("shell.book-deleted");
-        }
-        else
-            return userInterface.getText("shell.error.no-such-book");
+        databaseService.getBookService().deleteById(id);
+        return userInterface.getText("shell.book-deleted");
     }
 
     @ShellMethod(value = "Add comment to book", key = {"add-comment"})
     String addComment(long bookId, String text) {
         Book book = databaseService.getBookService().getBookById(bookId);
         if (book != null) {
-            Comment comment = new Comment(userName, ZonedDateTime.now(), text);
-            databaseService.getBookService().addComment(book, comment);
+            Comment comment = new Comment(userName, ZonedDateTime.now(), text, book);
+            databaseService.getCommentService().addComment(comment);
             return userInterface.getText("shell.comment-added");
         }
         else
@@ -172,14 +167,9 @@ public class LibraryShell {
     }
 
     @ShellMethod(value = "Delete comment", key = {"delete-comment"})
-    String deleteComment(long bookId, long commentId ){
-        Book book = databaseService.getBookService().getBookById(bookId);
-        if (book != null) {
-            databaseService.getBookService().deleteComment(book, commentId);
-            return userInterface.getText("shell.comment-deleted");
-        }
-        else
-            return userInterface.getText("shell.error.no-such-book");
+    String deleteComment(long commentId ){
+        databaseService.getCommentService().deleteCommentById(commentId);
+        return userInterface.getText("shell.comment-deleted");
     }
 
     @ShellMethod(value = "Print comments", key = {"print-comments"})
@@ -192,7 +182,8 @@ public class LibraryShell {
                     .append("\n")
                     .append("======\n");
 
-            book.getCommentList().forEach(comment -> sb.append(UIUtils.getCommentString(comment)).append("\n"));
+            databaseService.getCommentService().getCommentsByBook(book)
+                    .forEach(comment -> sb.append(UIUtils.getCommentString(comment)).append("\n"));
             return sb.toString();
         }
         else
