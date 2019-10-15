@@ -1,32 +1,32 @@
 package ru.biderman.library.service;
 
 import org.springframework.stereotype.Service;
-import ru.biderman.library.dao.CommentDao;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Comment;
+import ru.biderman.library.repositories.CommentRepository;
 
 import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService{
-    private final CommentDao commentDao;
+    private final CommentRepository commentRepository;
 
-    public CommentServiceImpl(CommentDao commentDao) {
-        this.commentDao = commentDao;
+    public CommentServiceImpl(CommentRepository commentRepository) {
+        this.commentRepository = commentRepository;
     }
 
     @Override
     public void addComment(Comment comment) {
-        commentDao.addComment(comment);
+        commentRepository.save(comment);
     }
 
     @Override
     public void deleteCommentById(long id) {
-        commentDao.deleteCommentById(id);
+        commentRepository.deleteById(id);
     }
 
     @Override
     public List<Comment> getCommentsByBook(Book book) {
-        return commentDao.getCommentsByBook(book);
+        return commentRepository.findByBook(book);
     }
 }

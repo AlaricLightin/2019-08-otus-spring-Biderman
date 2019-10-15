@@ -10,9 +10,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.biderman.library.dao.GenreDao;
-import ru.biderman.library.dao.GenreDaoJpa;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.library.domain.Genre;
+import ru.biderman.library.repositories.GenreRepository;
 import ru.biderman.library.service.exceptions.AddGenreException;
 import ru.biderman.library.service.exceptions.UpdateGenreException;
 
@@ -24,13 +25,13 @@ import static ru.biderman.library.testutils.TestData.*;
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
 @EntityScan(basePackageClasses = Genre.class)
-@Import({GenreDaoJpa.class, GenreServiceImpl.class})
+@Import(GenreServiceImpl.class)
 class GenreServiceImplIntegrationTest {
     @Autowired
     GenreServiceImpl genreService;
 
     @Autowired
-    GenreDao genreDao;
+    GenreRepository genreRepository;
 
     @Autowired
     TestEntityManager testEntityManager;
@@ -53,6 +54,7 @@ class GenreServiceImplIntegrationTest {
 
     @DisplayName("должен бросать исключение при редактировании, если имя занято")
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void shouldThrowExceptionIfUpdateNameIsUsed() {
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_FOR_DELETE_ID, EXISTING_GENRE));
     }
