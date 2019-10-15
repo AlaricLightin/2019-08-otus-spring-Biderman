@@ -8,9 +8,9 @@ import ru.biderman.library.domain.Book;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Сервис по работе с книгами ")
@@ -32,9 +32,18 @@ class BookServiceImplTest {
         assertEquals(resultMap, bookService.getAllBooks());
     }
 
+    @DisplayName("должен возвращать книгу по id")
+    @Test
+    void shouldGetBookById() {
+        Book book = mock(Book.class);
+        long BOOK_ID = 1;
+        when(bookDao.getBookById(BOOK_ID)).thenReturn(book);
+        assertThat(bookService.getBookById(BOOK_ID)).isEqualTo(book);
+    }
+
     @DisplayName("должен добавлять книгу")
     @Test
-    void shouldAddAuthor() {
+    void shouldAddBook() {
         Book book = mock(Book.class);
         bookService.addBook(book);
         verify(bookDao).addBook(book);
@@ -42,12 +51,9 @@ class BookServiceImplTest {
 
     @DisplayName("должен удалять книгу")
     @Test
-    void shouldDeleteAuthor() {
+    void shouldDeleteBook() {
         final long BOOK_ID = 1;
-        bookService.deleteBook(BOOK_ID);
-        verify(bookDao).deleteBook(BOOK_ID);
+        bookService.deleteById(BOOK_ID);
+        verify(bookDao).deleteById(BOOK_ID);
     }
-
-
-
 }

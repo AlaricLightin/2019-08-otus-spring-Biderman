@@ -1,4 +1,4 @@
-package ru.biderman.library.service;
+package ru.biderman.library.shell;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,27 +7,37 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
+import ru.biderman.library.domain.Comment;
 import ru.biderman.library.domain.Genre;
+import ru.biderman.library.service.*;
 import ru.biderman.library.service.exceptions.*;
 import ru.biderman.library.userinputoutput.BookReader;
 import ru.biderman.library.userinputoutput.UIUtils;
 import ru.biderman.library.userinputoutput.UserInterface;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Shell-компонент ")
 class LibraryShellTest {
     private static final String RIGHT_RESULT_STRING = "Success";
     private UserInterface userInterface;
+    private DatabaseService databaseService;
+    private BookReader bookReader;
     private LibraryShell libraryShell;
 
     @BeforeEach
-    void setUserInterface() {
+    void initShell() {
         userInterface = mock(UserInterface.class);
+        databaseService = mock(DatabaseService.class);
+        bookReader = mock(BookReader.class);
+        libraryShell = new LibraryShell(databaseService, bookReader, userInterface);
     }
 
     void setRightResultMessageCode(String messageCode) {
@@ -44,13 +54,13 @@ class LibraryShellTest {
         @BeforeEach
         void init() {
             genreService = mock(GenreService.class);
-            libraryShell = new LibraryShell(null, genreService, null, null, userInterface);
+            when(databaseService.getGenreService()).thenReturn(genreService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
         @Test
         void shouldPrintAll() {
-            when(genreService.getAllGenres()).thenReturn(Collections.singletonMap(GENRE_ID, new Genre(GENRE_ID, GENRE_TITLE)));
+            when(genreService.getAllGenres()).thenReturn(Collections.singletonList(new Genre(GENRE_ID, GENRE_TITLE)));
             String result = libraryShell.printAllGenres();
             assertThat(result).isEqualTo(String.format("%d. %s", GENRE_ID, GENRE_TITLE));
         }
@@ -58,7 +68,7 @@ class LibraryShellTest {
         @DisplayName("должен сообщать, если список жанров пуст")
         @Test
         void shouldPrintAllIfEmpty() {
-            when(genreService.getAllGenres()).thenReturn(Collections.emptyMap());
+            when(genreService.getAllGenres()).thenReturn(Collections.emptyList());
             setRightResultMessageCode("shell.error.no-genres-found");
             assertThat(libraryShell.printAllGenres()).isEqualTo(RIGHT_RESULT_STRING);
         }
@@ -100,20 +110,20 @@ class LibraryShellTest {
         @DisplayName("должен обновлять жанр")
         @Test
         void shouldUpdate() throws ServiceException {
-            final String NEW_TITLE = "New title";
+            final String NEW_TEXT = "New title";
             setRightResultMessageCode("shell.genre-updated");
-            String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TITLE);
-            verify(genreService).updateGenre(GENRE_ID, NEW_TITLE);
+            String resultString = libraryShell.updateGenre(GENRE_ID, NEW_TEXT);
+            verify(genreService).updateGenre(GENRE_ID, NEW_TEXT);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
 
         @DisplayName("должен обрабатывать исключение, если не удалось обновить")
         @Test
         void shouldCatchUpdateException() throws ServiceException {
-            final String NEW_TITLE = "New title";
+            final String NEW_TEXT = "New title";
             setRightResultMessageCode("shell.error.update-genre-error");
-            doThrow(UpdateGenreException.class).when(genreService).updateGenre(GENRE_ID, NEW_TITLE);
-            assertThat(libraryShell.updateGenre(GENRE_ID, NEW_TITLE)).isEqualTo(RIGHT_RESULT_STRING);
+            doThrow(UpdateGenreException.class).when(genreService).updateGenre(GENRE_ID, NEW_TEXT);
+            assertThat(libraryShell.updateGenre(GENRE_ID, NEW_TEXT)).isEqualTo(RIGHT_RESULT_STRING);
         }
     }
 
@@ -128,14 +138,14 @@ class LibraryShellTest {
         @BeforeEach
         void init() {
             authorService = mock(AuthorService.class);
-            libraryShell = new LibraryShell(null, null, authorService, null, userInterface);
+            when(databaseService.getAuthorService()).thenReturn(authorService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
         @Test
         void shouldPrintAll() {
             final long AUTHOR_ID = 1;
-            when(authorService.getAllAuthors()).thenReturn(Collections.singletonMap(AUTHOR_ID, new Author(AUTHOR_ID, SURNAME, NAME)));
+            when(authorService.getAllAuthors()).thenReturn(Collections.singletonList(new Author(AUTHOR_ID, SURNAME, NAME)));
             String result = libraryShell.printAllAuthors();
             assertThat(result).isEqualTo(String.format("%d. %s %s", AUTHOR_ID, SURNAME, NAME));
         }
@@ -143,28 +153,20 @@ class LibraryShellTest {
         @DisplayName("должен сообщать, если список авторов пуст")
         @Test
         void shouldPrintAllIfEmpty() {
-            when(authorService.getAllAuthors()).thenReturn(Collections.emptyMap());
+            when(authorService.getAllAuthors()).thenReturn(Collections.emptyList());
             setRightResultMessageCode("shell.error.no-authors-found");
             assertThat(libraryShell.printAllAuthors()).isEqualTo(RIGHT_RESULT_STRING);
         }
 
         @DisplayName("должен добавлять автора")
         @Test
-        void shouldAdd() throws ServiceException {
+        void shouldAdd() {
             setRightResultMessageCode("shell.author-added");
             String resultString = libraryShell.addAuthor(SURNAME, NAME);
             ArgumentCaptor<Author> argument = ArgumentCaptor.forClass(Author.class);
             verify(authorService).addAuthor(argument.capture());
             assertThat(argument.getValue()).isEqualToComparingFieldByField(Author.createNewAuthor(SURNAME, NAME));
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
-        }
-
-        @DisplayName("должен обрабатывать исключение, если нельзя добавить")
-        @Test
-        void shouldCatchCouldNotAdd() throws ServiceException{
-            setRightResultMessageCode("shell.error.add-author-error");
-            doThrow(AddAuthorException.class).when(authorService).addAuthor(any());
-            assertThat(libraryShell.addAuthor(SURNAME, NAME)).isEqualTo(RIGHT_RESULT_STRING);
         }
 
         @DisplayName("должен удалять автора")
@@ -214,7 +216,6 @@ class LibraryShellTest {
         private BookService bookService;
         private GenreService genreService;
         private AuthorService authorService;
-        private BookReader bookReader;
         private static final long BOOK_ID = 1;
         private static final String BOOK_TITLE = "Book title";
         private static final String GENRE_TITLE =  "Some genre";
@@ -228,8 +229,9 @@ class LibraryShellTest {
             bookService = mock(BookService.class);
             genreService = mock(GenreService.class);
             authorService = mock(AuthorService.class);
-            bookReader = mock(BookReader.class);
-            libraryShell = new LibraryShell(bookService, genreService, authorService, bookReader, userInterface);
+            when(databaseService.getAuthorService()).thenReturn(authorService);
+            when(databaseService.getGenreService()).thenReturn(genreService);
+            when(databaseService.getBookService()).thenReturn(bookService);
         }
 
         @DisplayName("должен печатать их перечень, если он не пуст")
@@ -238,7 +240,7 @@ class LibraryShellTest {
             Book book = new Book(BOOK_ID,
                     Collections.singletonList(new Author(AUTHOR_ID, SURNAME, NAME)),
                     BOOK_TITLE,
-                    Collections.singletonList(new Genre(GENRE_ID, GENRE_TITLE)));
+                    Collections.singleton(new Genre(GENRE_ID, GENRE_TITLE)));
 
             when(bookService.getAllBooks()).thenReturn(Collections.singletonList(book));
             String result = libraryShell.printAllBooks();
@@ -258,13 +260,13 @@ class LibraryShellTest {
         void shouldAdd() {
             Author author = new Author(AUTHOR_ID, SURNAME, NAME);
             Genre genre = new Genre(GENRE_ID, GENRE_TITLE);
-            Map<Long, Genre> genreMap = Collections.singletonMap(GENRE_ID, genre);
-            Map<Long, Author> authorMap = Collections.singletonMap(AUTHOR_ID, author);
-            when(genreService.getAllGenres()).thenReturn(genreMap);
-            when(authorService.getAllAuthors()).thenReturn(authorMap);
+            List<Genre> genres = Collections.singletonList(genre);
+            List<Author> authors = Collections.singletonList(author);
+            when(genreService.getAllGenres()).thenReturn(genres);
+            when(authorService.getAllAuthors()).thenReturn(authors);
 
-            Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singletonList(genre));
-            when(bookReader.getBook(authorMap, genreMap)).thenReturn(book);
+            Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singleton(genre));
+            when(bookReader.getBook(authors, genres)).thenReturn(book);
             setRightResultMessageCode("shell.book-added");
 
             String resultString = libraryShell.addBook();
@@ -276,9 +278,93 @@ class LibraryShellTest {
         @Test
         void shouldDelete() {
             setRightResultMessageCode("shell.book-deleted");
+            Book book = mock(Book.class);
+            when(bookService.getBookById(BOOK_ID)).thenReturn(book);
             String resultString = libraryShell.deleteBook(BOOK_ID);
-            verify(bookService).deleteBook(BOOK_ID);
+            verify(bookService).deleteById(BOOK_ID);
             assertThat(resultString).isEqualTo(RIGHT_RESULT_STRING);
         }
+
+        @Nested
+        @DisplayName("при работе с комментариями")
+        class Comments {
+            private CommentService commentService;
+
+            private static final long BOOK_ID = 1;
+
+            @BeforeEach
+            void init() {
+                commentService = mock(CommentService.class);
+                when(databaseService.getCommentService()).thenReturn(commentService);
+            }
+
+            @DisplayName("должен добавлять комментарий")
+            @Test
+            void shouldAddComment() {
+                setRightResultMessageCode("shell.comment-added");
+                Book book = mock(Book.class);
+                when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+                final String COMMENT_TEXT = "Comment Text";
+
+                String result = libraryShell.addComment(BOOK_ID, COMMENT_TEXT);
+                ArgumentCaptor<Comment> argument = ArgumentCaptor.forClass(Comment.class);
+                verify(commentService).addComment(argument.capture());
+
+                assertThat(argument.getValue())
+                        .hasFieldOrPropertyWithValue("text", COMMENT_TEXT)
+                        .hasFieldOrPropertyWithValue("book", book);
+                assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+            }
+
+            @DisplayName("должен возвращать ошибку при попытке добавить комментарий к отсутствующей книге")
+            @Test
+            void shouldReturnErrorIfAddCommentToAbsentBook() {
+                setRightResultMessageCode("shell.error.no-such-book");
+                when(bookService.getBookById(BOOK_ID)).thenReturn(null);
+                assertThat(libraryShell.addComment(BOOK_ID, "")).isEqualTo(RIGHT_RESULT_STRING);
+            }
+
+            @DisplayName("должен удалять комментарий")
+            @Test
+            void shouldDeleteComment() {
+                setRightResultMessageCode("shell.comment-deleted");
+                final long COMMENT_ID = 1;
+                String result = libraryShell.deleteComment(COMMENT_ID);
+                verify(commentService).deleteCommentById(COMMENT_ID);
+                assertThat(result).isEqualTo(RIGHT_RESULT_STRING);
+            }
+
+            @DisplayName("должен печатать комментарии по книгам")
+            @Test
+            void shouldPrintComments() {
+                Author author = new Author(AUTHOR_ID, SURNAME, NAME);
+                Genre genre = new Genre(GENRE_ID, GENRE_TITLE);
+                Book book = Book.createNewBook(Collections.singletonList(author), BOOK_TITLE, Collections.singleton(genre));
+
+                final String user = "User";
+                final String commentText = "Comment text";
+                Comment comment = new Comment(user, ZonedDateTime.now(), commentText, book);
+
+                when(bookService.getBookById(BOOK_ID)).thenReturn(book);
+                when(commentService.getCommentsByBook(book)).thenReturn(Collections.singletonList(comment));
+                String result = libraryShell.printComments(BOOK_ID);
+                assertThat(result)
+                        .contains(SURNAME)
+                        .contains(NAME)
+                        .contains(BOOK_TITLE)
+                        .contains(user)
+                        .contains(commentText);
+            }
+        }
+    }
+
+    @DisplayName("должен проверять залогиненность")
+    @Test
+    void shouldTestLoginAvailability() {
+        assertFalse(libraryShell.isLoggedIn().isAvailable());
+        libraryShell.login("User");
+        assertTrue(libraryShell.isLoggedIn().isAvailable());
+        libraryShell.logout();
+        assertFalse(libraryShell.isLoggedIn().isAvailable());
     }
 }

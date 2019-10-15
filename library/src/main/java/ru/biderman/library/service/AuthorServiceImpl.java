@@ -1,13 +1,14 @@
 package ru.biderman.library.service;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.biderman.library.dao.AuthorDao;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.service.exceptions.DeleteAuthorException;
 import ru.biderman.library.service.exceptions.UpdateAuthorException;
 
-import java.util.Map;
+import javax.persistence.PersistenceException;
+import java.util.List;
 
 @Service
 class AuthorServiceImpl implements AuthorService{
@@ -24,29 +25,25 @@ class AuthorServiceImpl implements AuthorService{
 
     @Override
     public void updateAuthor(long id, Author author) throws UpdateAuthorException {
-        Author oldAuthor = authorDao.getAuthorById(id);
-        if (oldAuthor != null)
-            authorDao.updateAuthor(id, author);
-        else
-            throw new UpdateAuthorException();
+        Author oldAuthor = authorDao.getAuthorById(id).orElseThrow(UpdateAuthorException::new);
+        oldAuthor.setSurname(author.getSurname());
+        oldAuthor.setOtherNames(author.getOtherNames());
+        authorDao.updateAuthor(oldAuthor);
     }
 
     @Override
     public void deleteAuthor(long id) throws DeleteAuthorException {
         try {
-            if (!authorDao.isUsed(id))
-                authorDao.deleteAuthor(id);
-            else
-                throw new DeleteAuthorException();
+            authorDao.deleteAuthor(id);
         }
-        catch (DaoException e) {
+        catch (DataAccessException| PersistenceException e) {
             throw new DeleteAuthorException();
         }
 
     }
 
     @Override
-    public Map<Long, Author> getAllAuthors() {
+    public List<Author> getAllAuthors() {
         return authorDao.getAllAuthors();
     }
 }

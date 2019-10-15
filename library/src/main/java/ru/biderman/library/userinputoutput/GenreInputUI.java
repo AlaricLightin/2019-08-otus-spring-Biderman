@@ -41,7 +41,7 @@ class GenreInputUI implements DataInputUI<Genre> {
         }
         else {
             List<Genre> resultList = genreMap.values().stream()
-                    .filter(author -> s.equals(author.getTitle()))
+                    .filter(author -> s.equals(author.getText()))
                     .collect(Collectors.toList());
 
             if (resultList.size() > 0)

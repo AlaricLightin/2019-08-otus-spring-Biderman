@@ -1,7 +1,6 @@
 package ru.biderman.library.userinputoutput;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
 import ru.biderman.library.userinputoutput.exceptions.EmptyBookTitleException;
@@ -9,7 +8,8 @@ import ru.biderman.library.userinputoutput.exceptions.UserInputException;
 
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +39,7 @@ class BookTitleInputUITest {
 
     @DisplayName("должен бросать исключение, если ввод пустой")
     @Test
-    void shouldThrowExceptonIfEmpty() throws UserInputException {
+    void shouldThrowExceptonIfEmpty() {
         BookTitleInputUI bookTitleInputUI = new BookTitleInputUI();
         assertThrows(EmptyBookTitleException.class, () -> bookTitleInputUI.convertString(""));
     }

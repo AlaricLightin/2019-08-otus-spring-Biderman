@@ -1,14 +1,15 @@
 package ru.biderman.library.service;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import ru.biderman.library.dao.DaoException;
 import ru.biderman.library.dao.GenreDao;
 import ru.biderman.library.domain.Genre;
 import ru.biderman.library.service.exceptions.AddGenreException;
 import ru.biderman.library.service.exceptions.DeleteGenreException;
 import ru.biderman.library.service.exceptions.UpdateGenreException;
 
-import java.util.Map;
+import javax.persistence.PersistenceException;
+import java.util.List;
 
 @Service
 class GenreServiceImpl implements GenreService {
@@ -21,41 +22,36 @@ class GenreServiceImpl implements GenreService {
     @Override
     public void addGenre(String title) throws AddGenreException {
         try {
-            Genre genre = genreDao.getGenreByTitle(title);
-            if (genre == null)
-                genreDao.addGenre(Genre.createNewGenre(title));
-            else
-                throw new AddGenreException();
+            genreDao.addGenre(Genre.createNewGenre(title));
         }
-        catch (DaoException e) {
+        catch (DataAccessException|PersistenceException e) {
             throw new AddGenreException();
         }
     }
 
     @Override
     public void updateGenre(long id, String title) throws UpdateGenreException {
-        Genre genre = genreDao.getGenreById(id);
-        if (genre != null)
-            genreDao.updateGenre(id, title);
-        else
+        Genre genre = genreDao.getGenreById(id).orElseThrow(UpdateGenreException::new);
+        genre.setText(title);
+        try {
+            genreDao.updateGenre(genre);
+        } catch (DataAccessException|PersistenceException e) {
             throw new UpdateGenreException();
+        }
     }
 
     @Override
     public void deleteGenre(long id) throws DeleteGenreException {
         try {
-            if (!genreDao.isUsed(id))
-                genreDao.deleteGenre(id);
-            else
-                throw new DeleteGenreException();
+            genreDao.deleteGenre(id);
         }
-        catch (DaoException e) {
+        catch (DataAccessException|PersistenceException e) {
             throw new DeleteGenreException();
         }
     }
 
     @Override
-    public Map<Long, Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         return genreDao.getAllGenres();
     }
 }
