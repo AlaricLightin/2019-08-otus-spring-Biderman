@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import ru.biderman.library.dao.GenreDao;
 import ru.biderman.library.domain.Genre;
+import ru.biderman.library.repositories.GenreRepository;
 import ru.biderman.library.service.exceptions.AddGenreException;
 import ru.biderman.library.service.exceptions.DeleteGenreException;
 import ru.biderman.library.service.exceptions.ServiceException;
@@ -25,20 +25,20 @@ import static org.mockito.Mockito.*;
 class GenreServiceImplTest {
     private static final String GENRE_TEXT = "Some genre";
     private final long GENRE_ID = 1;
-    private GenreDao genreDao;
+    private GenreRepository genreRepository;
     private GenreService genreService;
 
     @BeforeEach
     void initGenreDao() {
-        genreDao = mock(GenreDao.class);
-        genreService = new GenreServiceImpl(genreDao);
+        genreRepository = mock(GenreRepository.class);
+        genreService = new GenreServiceImpl(genreRepository);
     }
 
     @DisplayName("должен возвращать все")
     @Test
     void shouldGetAll() {
         final List<Genre> genreList = Collections.singletonList(new Genre(1, GENRE_TEXT));
-        when(genreDao.getAllGenres()).thenReturn(genreList);
+        when(genreRepository.findAll()).thenReturn(genreList);
         assertEquals(genreList, genreService.getAllGenres());
     }
 
@@ -47,14 +47,14 @@ class GenreServiceImplTest {
     void shouldAddGenre() throws ServiceException {
         genreService.addGenre(GENRE_TEXT);
         ArgumentCaptor<Genre> argumentCaptor = ArgumentCaptor.forClass(Genre.class);
-        verify(genreDao).addGenre(argumentCaptor.capture());
+        verify(genreRepository).save(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).isEqualToComparingFieldByField(Genre.createNewGenre(GENRE_TEXT));
     }
 
     @DisplayName("должен бросать исключение, если не удаётся добавить жанр")
     @Test
     void shouldThrowExceptionIfGenreNotAdded() {
-        doThrow(PersistenceException.class).when(genreDao).addGenre(any());
+        doThrow(PersistenceException.class).when(genreRepository).save(any());
         assertThrows(AddGenreException.class, () -> genreService.addGenre(GENRE_TEXT));
     }
 
@@ -62,13 +62,13 @@ class GenreServiceImplTest {
     @Test
     void shouldDeleteGenre() throws ServiceException{
         genreService.deleteGenre(GENRE_ID);
-        verify(genreDao).deleteGenre(GENRE_ID);
+        verify(genreRepository).deleteById(GENRE_ID);
     }
 
     @DisplayName("должен бросать исключение, если жанр удалить не удаётся")
     @Test
     void shouldThrowExceptionIfCouldNotDelete() {
-        doThrow(PersistenceException.class).when(genreDao).deleteGenre(GENRE_ID);
+        doThrow(PersistenceException.class).when(genreRepository).deleteById(GENRE_ID);
         assertThrows(DeleteGenreException.class, () -> genreService.deleteGenre(GENRE_ID));
     }
 
@@ -77,9 +77,9 @@ class GenreServiceImplTest {
     void shouldUpdateGenre() throws ServiceException{
         final String NEW_TEXT = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TEXT);
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
+        when(genreRepository.findById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
         genreService.updateGenre(GENRE_ID, NEW_TEXT);
-        verify(genreDao).updateGenre(oldGenre);
+        verify(genreRepository).save(oldGenre);
         assertThat(oldGenre).hasFieldOrPropertyWithValue("text", NEW_TEXT);
     }
 
@@ -87,7 +87,7 @@ class GenreServiceImplTest {
     @Test
     void shouldThrowUpdateExceptionIfNoGenre() {
         final String NEW_TEXT = "New genre";
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.empty());
+        when(genreRepository.findById(GENRE_ID)).thenReturn(Optional.empty());
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_ID, NEW_TEXT));
     }
 
@@ -96,8 +96,8 @@ class GenreServiceImplTest {
     void shouldThrowUpdateExceptionIfCouldNotUpdate(){
         final String NEW_TEXT = "New genre";
         Genre oldGenre = new Genre(GENRE_ID, GENRE_TEXT);
-        when(genreDao.getGenreById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
-        doThrow(PersistenceException.class).when(genreDao).updateGenre(oldGenre);
+        when(genreRepository.findById(GENRE_ID)).thenReturn(Optional.of(oldGenre));
+        doThrow(PersistenceException.class).when(genreRepository).save(oldGenre);
         assertThrows(UpdateGenreException.class, () -> genreService.updateGenre(GENRE_ID, NEW_TEXT));
     }
 }

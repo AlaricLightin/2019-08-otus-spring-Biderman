@@ -7,13 +7,16 @@ databaseChangeLog:
         columns:
           - column:
               name: id
-              type: identity
+              type: bigint
+              autoIncrement: true
+              startWith: 1
+              incrementBy: 1
               constraints:
                 nullable: false
                 primaryKey: true
 
           - column:
-              name: user
+              name: username
               type: varchar(255)
               constraints:
                 nullable: false
@@ -25,10 +28,11 @@ databaseChangeLog:
                 nullable: false
                 references: books(id)
                 foreignKeyName: fk_comments_book
+                deleteCascade: true
 
           - column:
               name: date_time
-              type: timestamp
+              type: timestamp with time zone
               constraints:
                 nullable: false
 

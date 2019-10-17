@@ -3,7 +3,16 @@ spring:
     enabled: true
 
   datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql:otus-library
+    username: springuser
+    password: 123
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true

@@ -11,7 +11,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "user")
+    @Column(name = "username")
     private String user;
 
     @Column(name = "date_time")
