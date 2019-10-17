@@ -7,7 +7,10 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: identity
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
                 constraints:
                   nullable: false
                   primaryKey: true
@@ -20,7 +23,10 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: identity
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
                 constraints:
                   nullable: false
                   primaryKey: true
@@ -38,7 +44,10 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: identity
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
                 constraints:
                   nullable: false
                   primaryKey: true

@@ -2,12 +2,9 @@ package ru.biderman.library.repositories;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.biderman.library.domain.Author;
 import ru.biderman.library.domain.Book;
 import ru.biderman.library.domain.Comment;
@@ -22,8 +19,6 @@ import static ru.biderman.library.testutils.TestData.EXISTING_COMMENT_ID;
 
 @DisplayName("Репозиторий для работы с книгами ")
 @DataJpaTest
-@ExtendWith(SpringExtension.class)
-@EntityScan(basePackages = "ru.biderman.library.domain")
 class BookRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
@@ -51,7 +46,8 @@ class BookRepositoryTest {
     @DisplayName("должен удалять книги с комментариями")
     @Test
     void shouldDeleteWithComments() {
-        bookRepository.deleteByIdWithComments(EXISTING_BOOK_ID);
+        bookRepository.deleteById(EXISTING_BOOK_ID);
+        testEntityManager.flush();
         Book deletedBook = testEntityManager.find(Book.class, EXISTING_BOOK_ID);
         assertNull(deletedBook);
 

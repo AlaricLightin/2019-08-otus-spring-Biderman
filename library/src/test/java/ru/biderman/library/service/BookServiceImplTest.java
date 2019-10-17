@@ -55,6 +55,6 @@ class BookServiceImplTest {
     void shouldDeleteBook() {
         final long BOOK_ID = 1;
         bookService.deleteById(BOOK_ID);
-        verify(bookRepository).deleteByIdWithComments(BOOK_ID);
+        verify(bookRepository).deleteById(BOOK_ID);
     }
 }
