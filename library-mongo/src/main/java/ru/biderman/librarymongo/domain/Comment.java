@@ -3,6 +3,7 @@ package ru.biderman.librarymongo.domain;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.ZonedDateTime;
 
@@ -11,12 +12,16 @@ public class Comment {
     @Id
     private String id;
 
+    @Field("user")
     private String user;
 
+    @Field("dateTime")
     private ZonedDateTime dateTime;
 
+    @Field("text")
     private String text;
 
+    @Field("book")
     @DBRef
     private Book book;
 

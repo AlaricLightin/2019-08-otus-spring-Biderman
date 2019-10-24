@@ -1,6 +1,6 @@
 package ru.biderman.librarymongo.config;
 
-import com.github.cloudyrock.mongock.SpringBootMongock;
+import com.github.cloudyrock.mongock.Mongock;
 import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
 import com.mongodb.MongoClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,19 +10,31 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 public class MongoConfig {
-    @Bean
-    public SpringBootMongock mongock(ApplicationContext applicationContext,
-                                 MongoClient mongoClient,
-                                 @Value("${spring.data.mongodb.database}") String databaseName) {
-        return (SpringBootMongock) new SpringBootMongockBuilder(mongoClient, databaseName, "ru.biderman.librarymongo.changelogs")
+    private final ApplicationContext applicationContext;
+    private final MongoClient mongoClient;
+    private final String databaseName;
+
+    public MongoConfig(ApplicationContext applicationContext,
+                       MongoClient mongoClient,
+                       @Value("${spring.data.mongodb.database}")String databaseName) {
+        this.applicationContext = applicationContext;
+        this.mongoClient = mongoClient;
+        this.databaseName = databaseName;
+    }
+
+    @PostConstruct
+    public void initDBWithMongock() {
+        Mongock mongock = new SpringBootMongockBuilder(mongoClient, databaseName, "ru.biderman.librarymongo.changelogs")
                 .setApplicationContext(applicationContext)
                 .setLockQuickConfig()
                 .build();
+        mongock.execute();
     }
 
     @Bean

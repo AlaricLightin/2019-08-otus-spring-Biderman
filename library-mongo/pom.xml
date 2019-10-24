@@ -25,9 +25,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.cloudyrock</groupId>
+			<groupId>com.github.cloudyrock.mongock</groupId>
 			<artifactId>mongock-spring</artifactId>
-			<version>1.16</version>
+			<version>2.0.2</version>
 		</dependency>
 
 		<dependency>

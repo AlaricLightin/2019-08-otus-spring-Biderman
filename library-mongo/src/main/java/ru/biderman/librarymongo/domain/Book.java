@@ -3,6 +3,7 @@ package ru.biderman.librarymongo.domain;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 import java.util.Set;
@@ -12,11 +13,14 @@ public class Book {
     @Id
     private String id;
 
+    @Field("authorList")
     @DBRef
     private List<Author> authorList;
 
+    @Field("title")
     private String title;
 
+    @Field("genres")
     private Set<String> genres;
 
     public static Book createNewBook(List<Author> authorList, String title, Set<String> genreList) {

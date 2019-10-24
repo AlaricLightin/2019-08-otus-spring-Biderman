@@ -2,14 +2,17 @@ package ru.biderman.librarymongo.domain;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "authors")
 public class Author {
     @Id
     private String id;
 
+    @Field("surname")
     private String surname;
 
+    @Field("otherNames")
     private String otherNames;
 
     public static Author createNewAuthor(String surname, String otherNames) {
