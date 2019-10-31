@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!--/*@thymesVar id="messageId" type="java.lang.String"*/-->
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{error.page-title}">Ошибка</title>
+
+    <th:object th:replace="fragments :: bootstrap-scripts"/>
+</head>
+<body>
+    <div class="m-2">
+        <p th:if="${messageId}" th:text="#{__${messageId}__}">Сообщение об ошибке с сервера</p>
+        <p th:unless="${messageId}" th:text="#{error.standart-text}">Стандартное сообщение об ошибке</p>
+    </div>
+    <div class="m-2">
+        <a href="/" th:text="#{error.to-main-page}">На главную</a>
+    </div>
+</body>
+</html>

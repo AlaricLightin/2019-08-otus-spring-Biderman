@@ -1,0 +1,91 @@
+databaseChangeLog:
+  - changeSet:
+      - id: 2019-10-24
+      - author: alexander_biderman
+      - createTable:
+          tableName: books
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
+                constraints:
+                  nullable: false
+                  primaryKey: true
+            - column:
+                name: title
+                type: varchar(255)
+
+      - createTable:
+          tableName: authors
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
+                constraints:
+                  nullable: false
+                  primaryKey: true
+            - column:
+                name: surname
+                type: varchar(255)
+                constraints:
+                  nullable: false
+            - column:
+                name: other_names
+                type: varchar(255)
+
+      - createTable:
+          tableName: genres
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
+                constraints:
+                  nullable: false
+                  primaryKey: true
+            - column:
+                name: genre_text
+                type: varchar(255)
+                constraints:
+                  nullable: false
+                  unique: true
+
+      - createTable:
+          tableName: book_authors
+          columns:
+            - column:
+                name: book_id
+                type: bigint
+                constraints:
+                  foreignKeyName: fk_book_authors_book
+                  references: books(id)
+            - column:
+                name: author_id
+                type: bigint
+                constraints:
+                  references: authors(id)
+                  foreignKeyName: fk_book_authors_author
+
+      - createTable:
+          tableName: book_genres
+          columns:
+            - column:
+                name: book_id
+                type: bigint
+                constraints:
+                  references: books(id)
+                  foreignKeyName: fk_book_genres_book
+            - column:
+                name: genre_id
+                type: bigint
+                constraints:
+                  references: genres(id)
+                  foreignKeyName: fk_book_genres_genre

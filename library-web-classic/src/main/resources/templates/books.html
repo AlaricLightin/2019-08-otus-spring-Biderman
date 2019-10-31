@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{books.page-title}">Книги</title>
+
+    <th:object th:replace="fragments :: bootstrap-scripts"/>
+</head>
+<body>
+    <div th:replace="fragments :: main-menu"></div>
+
+    <div class="list-group">
+        <div class="list-group-item" th:each="b: ${books}">
+            <div class="row">
+                <div class="col">
+                    <p>
+                        <span th:text="${#strings.listJoin(b.authorList.![otherNames + ' ' + surname], ', ')}">Александр Пушкин</span>
+                        <span th:if="${b.authorList.size() > 0}" th:text="', '"></span>
+                        &quot;<span th:text="${b.title}">Евгений Онегин</span>&quot;
+                    </p>
+                    <small th:text="${#strings.setJoin(b.genres.![text], ', ')}">Поэзия</small>
+                </div>
+                <div class="col-2">
+                    <a class="btn btn-warning" href="/books/edit?id=1" th:href="@{/books/edit(id=${b.id})}"
+                       th:text="#{button.edit}">Редактировать</a>
+                    <a class="btn btn-danger" href="/books/delete?id=1" th:href="@{/books/delete(id=${b.id})}"
+                       th:text="#{button.delete}">Удалить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-2">
+        <a class="btn btn-primary" href="/books/edit?id=0" th:text="#{button.add}">Добавить</a>
+    </div>
+</body>
+</html>
