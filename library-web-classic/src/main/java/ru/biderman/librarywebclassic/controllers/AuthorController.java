@@ -1,4 +1,4 @@
-package ru.biderman.librarywebclassic.rest;
+package ru.biderman.librarywebclassic.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -42,6 +42,14 @@ public class AuthorController {
     }
 
     @GetMapping("/authors/delete")
+    public String getAuthorDeleteForm(@RequestParam("id") long id, Model model) throws AuthorNotFoundException {
+        Author author = authorService.findById(id);
+        model.addAttribute("id", author.getId());
+        model.addAttribute("stringValue", ViewUtils.getAuthorString(author));
+        return "delete-author";
+    }
+
+    @PostMapping("/authors/delete")
     public String deleteAuthor(@RequestParam("id") long id) throws DeleteAuthorException {
         authorService.deleteById(id);
         return "redirect:/authors";

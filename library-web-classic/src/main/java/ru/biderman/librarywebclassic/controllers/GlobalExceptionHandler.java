@@ -1,4 +1,4 @@
-package ru.biderman.librarywebclassic.rest;
+package ru.biderman.librarywebclassic.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;

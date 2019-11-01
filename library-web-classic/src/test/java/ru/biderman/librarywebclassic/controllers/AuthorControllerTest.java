@@ -1,4 +1,4 @@
-package ru.biderman.librarywebclassic.rest;
+package ru.biderman.librarywebclassic.controllers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -127,10 +127,27 @@ class AuthorControllerTest {
         verify(authorService).updateAuthor(AUTHOR_ID, author);
     }
 
+    @DisplayName("должен показывать форму для удаления автора")
+    @Test
+    void shouldShowAuthorDeleteForm() throws Exception {
+        Author author = new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME);
+        when(authorService.findById(AUTHOR_ID)).thenReturn(author);
+
+        MvcResult result = mockMvc.perform(get(String.format("/authors/delete?id=%s", AUTHOR_ID)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("delete-author"))
+                .andExpect(model().attribute("id", AUTHOR_ID))
+                .andReturn();
+
+        assertThat(result.getResponse().getContentAsString())
+                .contains(AUTHOR_NAME)
+                .contains(AUTHOR_SURNAME);
+    }
+
     @DisplayName("должен удалять автора")
     @Test
     void shouldDeleteAuthor() throws Exception {
-        mockMvc.perform(get(String.format("/authors/delete?id=%s", AUTHOR_ID)))
+        mockMvc.perform(post(String.format("/authors/delete?id=%s", AUTHOR_ID)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/authors"))
                 .andReturn();
@@ -143,7 +160,7 @@ class AuthorControllerTest {
     void shouldShowErrorIfCouldNotDelete() throws Exception {
         doThrow(DeleteAuthorException.class).when(authorService).deleteById(AUTHOR_ID);
 
-        mockMvc.perform(get(String.format("/authors/delete?id=%s", AUTHOR_ID)))
+        mockMvc.perform(post(String.format("/authors/delete?id=%s", AUTHOR_ID)))
                 .andExpect(status().isForbidden())
                 .andReturn();
     }

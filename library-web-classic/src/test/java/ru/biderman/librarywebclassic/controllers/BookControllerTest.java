@@ -1,4 +1,4 @@
-package ru.biderman.librarywebclassic.rest;
+package ru.biderman.librarywebclassic.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +13,7 @@ import ru.biderman.librarywebclassic.domain.Author;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.domain.Genre;
 import ru.biderman.librarywebclassic.services.DatabaseService;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -171,14 +172,41 @@ class BookControllerTest {
         verify(databaseService).saveBook(book);
     }
 
+    @DisplayName("должен показывать форму для удаления книги")
+    @Test
+    void shouldShowBookDeleteForm() throws Exception {
+        Book book = createTestBook();
+        when(databaseService.getBookById(BOOK_ID)).thenReturn(book);
+
+        MvcResult result = mockMvc.perform(get(String.format("/books/delete?id=%s", BOOK_ID)))
+                .andExpect(status().isOk())
+                .andExpect(view().name("delete-book"))
+                .andExpect(model().attribute("id", BOOK_ID))
+                .andReturn();
+
+        assertThat(result.getResponse().getContentAsString())
+                .contains(NEW_BOOK_TITLE)
+                .contains(AUTHOR_SURNAME);
+    }
+
     @DisplayName("должен удалять книгу")
     @Test
     void shouldDeleteBook() throws Exception {
-        mockMvc.perform(get(String.format("/books/delete?id=%s", BOOK_ID)))
+        mockMvc.perform(post(String.format("/books/delete?id=%s", BOOK_ID)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"))
                 .andReturn();
 
         verify(databaseService).deleteBookById(BOOK_ID);
+    }
+
+    @DisplayName("должен показывать страницу с исключением при запросе отсутствующей книги")
+    @Test
+    void shouldShowErrorPageWhenBookIsAbsent() throws Exception {
+        doThrow(BookNotFoundException.class).when(databaseService).getBookById(BOOK_ID);
+        mockMvc.perform(get(String.format("/books/delete?id=%s", BOOK_ID)))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error"))
+                .andReturn();
     }
 }

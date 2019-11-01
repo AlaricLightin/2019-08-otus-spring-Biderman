@@ -5,6 +5,7 @@ import ru.biderman.librarywebclassic.domain.Author;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.domain.Genre;
 import ru.biderman.librarywebclassic.services.exceptions.AuthorNotFoundException;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 import ru.biderman.librarywebclassic.services.exceptions.DeleteAuthorException;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public Book getBookById(long id) {
+    public Book getBookById(long id) throws BookNotFoundException {
         return bookService.getBookById(id);
     }
 

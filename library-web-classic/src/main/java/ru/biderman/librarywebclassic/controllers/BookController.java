@@ -1,13 +1,12 @@
-package ru.biderman.librarywebclassic.rest;
+package ru.biderman.librarywebclassic.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.services.DatabaseService;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 
 import java.util.Collections;
 
@@ -27,7 +26,7 @@ public class BookController {
     }
 
     @GetMapping("/books/edit")
-    public String editBook(@RequestParam("id") long id, Model model) {
+    public String editBook(@RequestParam("id") long id, Model model) throws BookNotFoundException {
         Book book = id != 0 ? databaseService.getBookById(id)
                 : Book.createNewBook(Collections.emptyList(), "", Collections.emptySet());
         model.addAttribute("book", book);
@@ -43,8 +42,23 @@ public class BookController {
     }
 
     @GetMapping("/books/delete")
+    public String deleteBookEditForm(@RequestParam("id") long id, Model model) throws BookNotFoundException{
+        Book book = databaseService.getBookById(id);
+        model.addAttribute("id", book.getId());
+        model.addAttribute("stringValue", ViewUtils.getBookString(book));
+        return "delete-book";
+    }
+
+    @PostMapping("/books/delete")
     public String deleteBook(@RequestParam("id") long id) {
         databaseService.deleteBookById(id);
         return "redirect:/";
+    }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String bookNotFoundError(Model model) {
+        model.addAttribute("messageId", "error.book-not-found");
+        return "error";
     }
 }

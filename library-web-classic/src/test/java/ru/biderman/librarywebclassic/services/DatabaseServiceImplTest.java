@@ -8,6 +8,7 @@ import ru.biderman.librarywebclassic.domain.Author;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.domain.Genre;
 import ru.biderman.librarywebclassic.services.exceptions.AuthorNotFoundException;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 import ru.biderman.librarywebclassic.services.exceptions.DeleteAuthorException;
 import ru.biderman.librarywebclassic.services.exceptions.ServiceException;
 
@@ -66,7 +67,7 @@ class DatabaseServiceImplTest {
 
         @DisplayName("должен возвращать книгу по id")
         @Test
-        void shouldGetById() {
+        void shouldGetById() throws BookNotFoundException {
             final long bookId = 100;
             Book book = mock(Book.class);
             when(bookService.getBookById(bookId)).thenReturn(book);

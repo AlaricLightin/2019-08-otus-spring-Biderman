@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.repositories.BookRepository;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
+import ru.biderman.librarywebclassic.services.exceptions.ServiceException;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Сервис по работе с книгами ")
@@ -35,11 +38,19 @@ class BookServiceImplTest {
 
     @DisplayName("должен возвращать книгу по id")
     @Test
-    void shouldGetBookById() {
+    void shouldGetBookById() throws ServiceException {
         Book book = mock(Book.class);
         long BOOK_ID = 1;
         when(bookRepository.findById(BOOK_ID)).thenReturn(Optional.of(book));
         assertThat(bookService.getBookById(BOOK_ID)).isEqualTo(book);
+    }
+
+    @DisplayName("должен выбрасывать исключение, если книги нет")
+    @Test
+    void shouldThrowExceptionIfBookAbsent() {
+        long BOOK_ID = 1;
+        when(bookRepository.findById(BOOK_ID)).thenReturn(Optional.empty());
+        assertThrows(BookNotFoundException.class, () -> bookService.getBookById(BOOK_ID));
     }
 
     @DisplayName("должен сохранять книгу")

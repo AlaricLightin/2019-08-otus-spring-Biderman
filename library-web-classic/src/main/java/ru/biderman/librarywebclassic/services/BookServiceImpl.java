@@ -3,6 +3,7 @@ package ru.biderman.librarywebclassic.services;
 import org.springframework.stereotype.Service;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.repositories.BookRepository;
+import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book getBookById(long id) {
-        return bookRepository.findById(id).orElse(null);
+    public Book getBookById(long id) throws BookNotFoundException{
+        return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
     }
 }

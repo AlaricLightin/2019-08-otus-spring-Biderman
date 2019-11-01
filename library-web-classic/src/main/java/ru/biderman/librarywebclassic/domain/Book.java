@@ -60,6 +60,10 @@ public class Book {
         return genres;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public void setAuthorList(List<Author> authorList) {
         this.authorList = authorList;
     }
