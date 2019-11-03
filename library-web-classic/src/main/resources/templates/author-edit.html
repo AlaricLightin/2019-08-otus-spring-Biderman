@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{author-edit.page-title}">Редактировать данные об авторе</title>
+
+    <th:object th:replace="fragments :: bootstrap-scripts"/>
+</head>
+<body>
+    <form action="#" th:action="@{/authors/edit}" th:object="${author}" method="post" class="m-2">
+        <h4 th:text="#{author-edit.page-title}">Редактировать данные об авторе</h4>
+        <input type="hidden" th:field="*{id}">
+        <div class="form-group row">
+            <label for="surname-edit" th:text="#{author-edit.surname}" class="col-form-label col-sm-1">Фамилия</label>
+            <input id="surname-edit" type="text" th:field="*{surname}" class="form-control col"/><br>
+        </div>
+
+        <div class="form-group row">
+            <label for="name-edit" th:text="#{author-edit.name}" class="col-sm-1 col-form-label">Имя</label>
+            <input id="name-edit" type="text" th:field="*{otherNames}" class="form-control col"/><br>
+        </div>
+
+        <div class="m-2">
+            <input type="submit" class="btn btn-primary" value="Submit" th:value="#{button.submit}" />
+            <a href="/authors" class="btn btn-danger" th:text="#{button.back}">Назад</a>
+        </div>
+    </form>
+</body>
+</html>

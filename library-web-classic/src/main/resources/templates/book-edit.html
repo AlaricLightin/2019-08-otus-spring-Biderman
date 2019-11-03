@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{book-edit.page-title}">Редактировать данные о книге</title>
+
+    <th:object th:replace="fragments :: bootstrap-scripts"/>
+</head>
+<body>
+    <form action="#" th:action="@{/books/edit}" th:object="${book}" method="post" class="m-2">
+        <h4 th:text="#{book-edit.page-title}">Редактировать данные о книге</h4>
+        <input type="hidden" th:field="*{id}">
+
+        <div id="div-authors" class="div-element-list border border-secondary p-2 m-1">
+            <h5 th:text="#{books.book-authors}">Авторы</h5>
+
+            <!--/* На основании этого div'а будут создаваться другие при добавлении/удалении */-->
+            <div class="div-sample d-none form-group row">
+                <label th:text="#{book-edit.author}" class="col-sm-1 col-form-label">Автор</label>
+                <div class="col">
+                    <select class="form-control">
+                        <option th:each="author: ${allAuthors}" th:value="${author.id}"
+                                th:text="${author.otherNames + ' ' + author.surname}">Александр Пушкин
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div th:each="ba: *{authorList}" class="div-element form-group row">
+                <label th:text="#{book-edit.author}" class="col-sm-1 col-form-label">Автор</label>
+                <div class="col">
+                    <select name="authorList" class="form-control">
+                        <option th:each="author: ${allAuthors}" th:value="${author.id}"
+                                th:selected="${author.id == ba.id}"
+                                th:text="${author.otherNames + ' ' + author.surname}">Александр Пушкин
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="div-buttons">
+                <a class="add-button btn btn-primary" href="#" th:text="#{button.add}">Добавить</a>
+                <a class="delete-button btn btn-danger" href="#" th:text="#{button.delete}">Удалить</a>
+            </div>
+        </div>
+
+        <div id="title" class="border border-secondary p-2 m-1">
+            <div class="form-group">
+                <h5 th:text="#{books.book-title}">Название</h5>
+                <input id="text-edit" class="form-control" type="text" th:field="*{title}"/>
+            </div>
+        </div>
+
+        <div id="div-genres" class="div-element-list border border-secondary p-2 m-1">
+            <h5 th:text="#{books.book-genres}">Жанры</h5>
+            <div class="div-sample d-none form-group row">
+                <label th:text="#{book-edit.genre}" class="col-sm-1 col-form-label">Жанр</label>
+                <div class="col">
+                    <select class="form-control">
+                        <option th:each="genre : ${allGenres}" th:value="${genre.id}"
+                                th:text="${genre.text}">Поэзия
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div th:each="bookGenre : *{genres}" class="div-element form-group row">
+                <label th:text="#{book-edit.genre}" class="col-sm-1 col-form-label">Жанр</label>
+                <div class="col">
+                    <select name="genres" class="form-control">
+                        <option th:each="genre : ${allGenres}" th:value="${genre.id}"
+                                th:selected="${genre.id == bookGenre.id}"
+                                th:text="${genre.text}">Поэзия
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="div-buttons">
+                <a class="add-button btn btn-primary" href="#" th:text="#{button.add}">Добавить</a>
+                <a class="delete-button btn btn-danger" href="#" th:text="#{button.delete}">Удалить</a>
+            </div>
+        </div>
+        <div class="m-2">
+            <input type="submit" class="btn btn-primary" value="Submit" th:value="#{button.submit}" />
+            <a href="/" class="btn btn-danger" th:text="#{button.back}">Назад</a>
+        </div>
+    </form>
+
+<script>
+    $(document).ready( function() {
+        $(".add-button").click( function() {
+            var $list = $(this).closest(".div-element-list");
+
+            var $newDiv = $(".div-sample", $list)
+                .clone()
+                .removeClass("div-sample")
+                .removeClass("d-none")
+                .addClass("div-element");
+
+            var nameAttr = $list.attr("id") === "div-authors" ? "authorList" : "genres";
+            $("select", $newDiv).attr("name", nameAttr);
+
+            $newDiv.insertBefore($list.find(".div-buttons"));
+            return false;
+        });
+
+        $(".delete-button").click( function () {
+            var $list = $(this).closest(".div-element-list");
+            $(".div-element:last", $list).remove();
+            return false;
+        });
+    });
+</script>
+</body>
+</html>
