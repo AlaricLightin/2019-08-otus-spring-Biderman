@@ -1,0 +1,10 @@
+target/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Автоматически копирующиеся файлы frontend'а
+/src/main/resources/public/

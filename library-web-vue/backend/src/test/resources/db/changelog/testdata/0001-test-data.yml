@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-test-data
+      author: alexander_biderman
+      context: test
+      path: data.sql
+
