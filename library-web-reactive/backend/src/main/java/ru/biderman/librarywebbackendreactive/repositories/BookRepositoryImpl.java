@@ -1,5 +1,6 @@
 package ru.biderman.librarywebbackendreactive.repositories;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import reactor.core.publisher.Flux;
@@ -7,11 +8,12 @@ import reactor.core.publisher.Mono;
 import ru.biderman.librarywebbackendreactive.domain.Book;
 import ru.biderman.librarywebbackendreactive.exceptions.BookNotFoundException;
 
+@RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepositoryCustom {
     @Autowired
-    BookRepository bookRepository;
-    @Autowired
-    ReactiveMongoTemplate mongoTemplate;
+    private BookRepository bookRepository;
+
+    private final ReactiveMongoTemplate mongoTemplate;
 
     @Override
     public Mono<Book> updateIfExists(Book book) {
