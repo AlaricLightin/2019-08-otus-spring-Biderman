@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title th:text="#{author-edit.page-title}">Редактировать данные об авторе</title>
 
-    <th:object th:replace="fragments :: bootstrap-scripts"/>
+    <th:block th:replace="fragments :: bootstrap-scripts"/>
 </head>
 <body>
     <form action="#" th:action="@{/authors/edit}" th:object="${author}" method="post" class="m-2">

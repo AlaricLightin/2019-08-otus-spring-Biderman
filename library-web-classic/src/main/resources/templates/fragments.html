@@ -24,12 +24,19 @@
     </nav>
 </div>
 
-<th:object th:fragment="bootstrap-scripts">
+<div th:fragment="user-string" class="p-2">
+    <p>
+        <span th:text="#{user-string.user(${#authentication.name})}">Пользователь: Админ.</span>
+        <a href="/logout" th:href="@{/logout}" th:text="#{user-string.logout}">Выйти.</a>
+    </p>
+</div>
+
+<th:block th:fragment="bootstrap-scripts">
     <script src="webjars/jquery/3.0.0/jquery.min.js" th:src="@{/webjars/jquery/3.0.0/jquery.min.js}"></script>
     <script src="webjars/bootstrap/4.3.1/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.3.1/js/bootstrap.min.js}"></script>
     <link href="webjars/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" type="text/css"
           th:href="@{/webjars/bootstrap/4.3.1/css/bootstrap.min.css}">
-</th:object>
+</th:block>
 
 </body>
 </html>

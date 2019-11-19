@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title th:text="#{delete.page-title}">Удаление</title>
 
-    <th:object th:replace="fragments :: bootstrap-scripts"/>
+    <th:block th:replace="fragments :: bootstrap-scripts"/>
 </head>
 <body>
     <form action="#" th:action="@{/books/delete(id=${id})}" method="post" class="m2">

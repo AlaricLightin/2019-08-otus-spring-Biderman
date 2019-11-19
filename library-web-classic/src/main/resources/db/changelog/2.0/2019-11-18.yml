@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      - id: 2019-11-18
+      - author: alexander_biderman
+      - createTable:
+          tableName: users
+          columns:
+            - column:
+                name: id
+                type: bigint
+                autoIncrement: true
+                startWith: 1
+                incrementBy: 1
+                constraints:
+                  nullable: false
+                  primaryKey: true
+
+            - column:
+                name: username
+                type: varchar(63)
+                constraints:
+                  nullable: false
+                  unique: true
+
+            - column:
+                name: user_password
+                type: varchar(255)
+                constraints:
+                  nullable: false
+
+            - column:
+                name: is_admin
+                type: boolean
+
