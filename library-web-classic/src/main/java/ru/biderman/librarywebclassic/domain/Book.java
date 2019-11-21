@@ -1,5 +1,8 @@
 package ru.biderman.librarywebclassic.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -9,6 +12,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "books")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Book {
     @Id
     @Column(name = "id")
@@ -32,47 +38,5 @@ public class Book {
 
     public static Book createNewBook(List<Author> authorList, String title, Set<Genre> genreList) {
         return new Book(0, authorList, title, genreList);
-    }
-
-    public Book() {
-    }
-
-    public Book(long id, List<Author> authorList, String title, Set<Genre> genres) {
-        this.id = id;
-        this.authorList = authorList;
-        this.title = title;
-        this.genres = genres;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public List<Author> getAuthorList() {
-        return authorList;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Set<Genre> getGenres() {
-        return genres;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setAuthorList(List<Author> authorList) {
-        this.authorList = authorList;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setGenres(Set<Genre> genres) {
-        this.genres = genres;
     }
 }

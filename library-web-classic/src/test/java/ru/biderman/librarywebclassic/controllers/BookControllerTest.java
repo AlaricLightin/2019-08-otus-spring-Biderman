@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.biderman.librarywebclassic.domain.Author;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -49,9 +51,10 @@ class BookControllerTest {
                 Collections.singleton(new Genre(GENRE_ID, GENRE)));
     }
 
-    @DisplayName("должен возвращать список всех книг")
+    @DisplayName("должен возвращать список всех книг для админа")
+    @WithMockAdmin
     @Test
-    void shouldGetAllBooks() throws Exception{
+    void shouldGetAllBooksForAdmin() throws Exception{
         Book book = createTestBook();
         when(databaseService.getAllBooks()).thenReturn(Collections.singletonList(book));
 
@@ -72,8 +75,33 @@ class BookControllerTest {
                 .contains(String.format(deleteFormat, BOOK_ID));
     }
 
+    @DisplayName("должен возвращать список всех книг для обычного пользователя")
+    @WithMockUser
+    @Test
+    void shouldGetAllBooksForUser() throws Exception{
+        Book book = createTestBook();
+        when(databaseService.getAllBooks()).thenReturn(Collections.singletonList(book));
+
+        MvcResult result = mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("books"))
+                .andExpect(model().attributeExists("books"))
+                .andReturn();
+
+        final String editFormat = "/books/edit?id=%s";
+        final String deleteFormat = "/books/delete?id=%s";
+        assertThat(result.getResponse().getContentAsString())
+                .contains(AUTHOR_NAME)
+                .contains(AUTHOR_SURNAME)
+                .contains(NEW_BOOK_TITLE)
+                .contains(GENRE)
+                .doesNotContain(String.format(editFormat, BOOK_ID))
+                .doesNotContain(String.format(deleteFormat, BOOK_ID));
+    }
+
     @Nested
     @DisplayName("должен создавать форму для редактирования ")
+    @WithMockAdmin
     class CreateEditForm {
         private Author author1;
         private Author author2;
@@ -128,43 +156,13 @@ class BookControllerTest {
         }
     }
 
-    @DisplayName("должен создавать форму для редактирования книги")
-    @Test
-    void shouldCreateEditForm() throws Exception{
-        Book book = createTestBook();
-        when(databaseService.getBookById(BOOK_ID)).thenReturn(book);
-
-        Author author1 = new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME);
-        Author author2 = new Author(AUTHOR_ID + 1, "Surname2", "Name2");
-        when(databaseService.getAllAuthors()).thenReturn(Arrays.asList(author1, author2));
-
-        Genre genre1 = new Genre(GENRE_ID, GENRE);
-        Genre genre2 = new Genre(GENRE_ID + 1, "Another genre");
-        when(databaseService.getAllGenres()).thenReturn(Arrays.asList(genre1, genre2));
-
-        MvcResult result = mockMvc.perform(get("/books/edit?id=" + BOOK_ID))
-                .andExpect(status().isOk())
-                .andExpect(view().name("book-edit"))
-                .andExpect(model().attribute("book", book))
-                .andExpect(model().attribute("allAuthors", hasSize(2)))
-                .andExpect(model().attribute("allGenres", hasSize(2)))
-                .andReturn();
-
-        assertThat(result.getResponse().getContentAsString())
-                .contains(AUTHOR_NAME)
-                .contains(AUTHOR_SURNAME)
-                .contains(NEW_BOOK_TITLE)
-                .contains(GENRE)
-                .contains(author2.getSurname())
-                .contains(genre2.getText());
-    }
-
     @DisplayName("должен принимать данные о книге")
+    @WithMockAdmin
     @Test
     void shouldReceivePostedNewBook() throws Exception{
         Book book = mock(Book.class);
 
-        mockMvc.perform(post("/books/edit").flashAttr("book", book))
+        mockMvc.perform(post("/books/edit").flashAttr("book", book).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"))
                 .andReturn();
@@ -173,6 +171,7 @@ class BookControllerTest {
     }
 
     @DisplayName("должен показывать форму для удаления книги")
+    @WithMockAdmin
     @Test
     void shouldShowBookDeleteForm() throws Exception {
         Book book = createTestBook();
@@ -190,9 +189,10 @@ class BookControllerTest {
     }
 
     @DisplayName("должен удалять книгу")
+    @WithMockAdmin
     @Test
     void shouldDeleteBook() throws Exception {
-        mockMvc.perform(post(String.format("/books/delete?id=%s", BOOK_ID)))
+        mockMvc.perform(post(String.format("/books/delete?id=%s", BOOK_ID)).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"))
                 .andReturn();
@@ -201,6 +201,7 @@ class BookControllerTest {
     }
 
     @DisplayName("должен показывать страницу с исключением при запросе отсутствующей книги")
+    @WithMockAdmin
     @Test
     void shouldShowErrorPageWhenBookIsAbsent() throws Exception {
         doThrow(BookNotFoundException.class).when(databaseService).getBookById(BOOK_ID);

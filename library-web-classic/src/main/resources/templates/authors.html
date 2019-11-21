@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{authors.page-title}">Авторы</title>
 
-    <th:object th:replace="fragments :: bootstrap-scripts"/>
+    <th:block th:replace="fragments :: bootstrap-scripts"/>
 </head>
 <body>
+    <div th:replace="fragments :: user-string"></div>
     <div th:replace="fragments :: main-menu"></div>
 
     <div class="list-group">
@@ -15,7 +16,7 @@
                 <div class="col">
                     <p th:text="|${a.otherNames} ${a.surname}|">Александр Пушкин</p>
                 </div>
-                <div class="col-2">
+                <div class="col-2" sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="btn btn-warning" href="/authors/edit?id=1" th:href="@{/authors/edit(id=${a.id})}"
                        th:text="#{button.edit}">Редактировать</a>
                     <a class="btn btn-danger" href="/authors/delete?id=1"
@@ -27,7 +28,7 @@
 
         </div>
     </div>
-    <div class="p-2">
+    <div class="p-2" sec:authorize="hasRole('ROLE_ADMIN')">
         <a class="btn btn-primary" href="/authors/edit?id=0" th:text="#{button.add}">Добавить</a>
     </div>
 </body>

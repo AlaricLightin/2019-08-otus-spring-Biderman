@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - changeSet:
+      id: start-users-data
+      author: alexander_biderman
+      path: start-data.sql

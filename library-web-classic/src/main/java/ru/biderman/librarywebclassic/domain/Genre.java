@@ -1,9 +1,16 @@
 package ru.biderman.librarywebclassic.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "genres")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Genre {
     @Id
     @Column(name = "id")
@@ -15,25 +22,5 @@ public class Genre {
 
     public static Genre createNewGenre(String title) {
         return new Genre(0, title);
-    }
-
-    public Genre() {
-    }
-
-    public Genre(long id, String text) {
-        this.id = id;
-        this.text = text;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 }

@@ -7,23 +7,22 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "authors")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Author {
+public class User {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "surname", nullable = false)
-    private String surname;
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
 
-    @Column(name = "other_names")
-    private String otherNames;
+    @Column(name = "user_password", nullable = false)
+    private String password;
 
-    public static Author createNewAuthor(String surname, String otherNames) {
-        return new Author(0, surname, otherNames);
-    }
+    @Column(name = "is_admin")
+    private boolean isAdmin;
 }
