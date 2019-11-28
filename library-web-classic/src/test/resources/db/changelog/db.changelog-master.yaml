@@ -2,8 +2,10 @@ databaseChangeLog:
 - includeAll:
     path: db/changelog/1.0/
 - includeAll:
+    path: db/changelog/2.0
+- includeAll:
+    path: db/changelog/start-users-data/
+- include:
+    file: db/changelog/3.0/2019-11-22.yml
+- includeAll:
     path: db/changelog/testdata
-- includeAll:
-      path: db/changelog/2.0
-- includeAll:
-      path: db/changelog/start-users-data/

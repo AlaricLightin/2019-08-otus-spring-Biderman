@@ -20,6 +20,9 @@
                         &quot;<span th:text="${b.title}">Евгений Онегин</span>&quot;
                     </p>
                     <small th:text="${#strings.setJoin(b.genres.![text], ', ')}">Поэзия</small>
+                    <div th:if="${@availabilityForMinorsService.isAdultOnly(b)}">
+                        <small style="color: red">18+</small>
+                    </div>
                 </div>
                 <div class="col-2" sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="btn btn-warning" href="/books/edit?id=1" th:href="@{/books/edit(id=${b.id})}"

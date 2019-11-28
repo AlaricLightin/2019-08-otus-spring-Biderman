@@ -23,8 +23,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public void saveBook(Book book) {
-        bookService.save(book);
+    public void saveBook(Book book, boolean adultOnly) {
+        bookService.save(book, adultOnly);
     }
 
     @Override

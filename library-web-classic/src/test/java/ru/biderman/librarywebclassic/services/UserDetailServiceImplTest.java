@@ -32,9 +32,9 @@ class UserDetailServiceImplTest {
     @DisplayName("должен получать данные пользователей")
     @ParameterizedTest
     @MethodSource("dataForUserDetails")
-    void shouldGetUserDetails(boolean isAdmin, String[] roles) {
+    void shouldGetUserDetails(boolean isAdmin, boolean isAdult, String[] roles) {
         String username = "user";
-        User user = new User(1, username, "pass", isAdmin);
+        User user = new User(1, username, "pass", isAdmin, isAdult);
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
 
         assertThat(userDetailService.loadUserByUsername(username))
@@ -47,8 +47,9 @@ class UserDetailServiceImplTest {
 
     private static Stream<Arguments> dataForUserDetails() {
         return Stream.of(
-                Arguments.of(true, new String[]{"ROLE_ADMIN", "ROLE_USER"}),
-                Arguments.of(false, new String[]{"ROLE_USER"})
+                Arguments.of(true, false, new String[]{"ROLE_ADMIN", "ROLE_USER"}),
+                Arguments.of(false, false, new String[]{"ROLE_USER"}),
+                Arguments.of(false, true, new String[]{"ROLE_USER", "ROLE_ADULT"})
         );
     }
 

@@ -36,8 +36,8 @@ public class BookController {
     }
 
     @PostMapping("books/edit")
-    public String postBookEditForm(@ModelAttribute Book book) {
-        databaseService.saveBook(book);
+    public String postBookEditForm(@ModelAttribute Book book, @ModelAttribute("adultOnly") boolean adultOnly) {
+        databaseService.saveBook(book, adultOnly);
         return "redirect:/";
     }
 

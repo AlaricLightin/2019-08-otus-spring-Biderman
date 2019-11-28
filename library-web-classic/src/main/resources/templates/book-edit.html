@@ -79,6 +79,17 @@
                 <a class="delete-button btn btn-danger" href="#" th:text="#{button.delete}">Удалить</a>
             </div>
         </div>
+
+        <div id="div-rights" class="border border-secondary p-2 m-1">
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="adultOnlyCheckBox"
+                       th:checked="${@availabilityForMinorsService.isAdultOnly(book)}"
+                       name="adultOnly"
+                >
+                <label class="form-check-label" for="adultOnlyCheckBox" th:text="#{book-edit.adult-only}">Только для врослых</label>
+            </div>
+        </div>
+
         <div class="m-2">
             <input type="submit" class="btn btn-primary" value="Submit" th:value="#{button.submit}" />
             <a href="/" class="btn btn-danger" th:text="#{button.back}">Назад</a>

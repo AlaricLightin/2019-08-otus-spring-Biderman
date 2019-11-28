@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.biderman.librarywebclassic.repositories.UserRepository;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -20,6 +20,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     private static final GrantedAuthority ADMIN = new SimpleGrantedAuthority("ROLE_ADMIN");
     private static final GrantedAuthority USER = new SimpleGrantedAuthority("ROLE_USER");
+    private static final GrantedAuthority ADULT = new SimpleGrantedAuthority("ROLE_ADULT");
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
@@ -27,8 +28,13 @@ public class UserDetailServiceImpl implements UserDetailsService {
                 .map(user -> new UserDetails() {
                     @Override
                     public Collection<? extends GrantedAuthority> getAuthorities() {
-                        return user.isAdmin() ?
-                                Arrays.asList(ADMIN, USER) : Collections.singletonList(USER);
+                        ArrayList<GrantedAuthority> result = new ArrayList<>();
+                        result.add(USER);
+                        if (user.isAdmin())
+                            result.add(ADMIN);
+                        if (user.isAdult())
+                            result.add(ADULT);
+                        return Collections.unmodifiableList(result);
                     }
 
                     @Override

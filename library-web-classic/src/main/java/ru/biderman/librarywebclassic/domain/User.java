@@ -25,4 +25,7 @@ public class User {
 
     @Column(name = "is_admin")
     private boolean isAdmin;
+
+    @Column(name = "is_adult")
+    private boolean isAdult;
 }

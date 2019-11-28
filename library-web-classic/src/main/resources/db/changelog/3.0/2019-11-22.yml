@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2019-11-18-acl-schema
+      author: alexander_biderman
+      changes:
+        sqlFile:
+          path: acl-tables-schema.sql
+          relativeToChangelogFile: true
+
+  - changeSet:
+      id: 2019-11-18-acl-data
+      author: alexander_biderman
+      changes:
+        sqlFile:
+          path: acl-tables-data.sql
+          relativeToChangelogFile: true
+
+  - changeSet:
+      id: 2019-11-18-modify-users
+      author: alexander_biderman
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: is_adult
+                  type: boolean
+
+        - sql:
+            sql: update users set is_adult = true
