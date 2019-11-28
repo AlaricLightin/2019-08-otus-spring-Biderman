@@ -12,9 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 public class AclMethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
     private final MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler;
 
-//    @Autowired
-//    MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler;
-
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {
         return defaultMethodSecurityExpressionHandler;

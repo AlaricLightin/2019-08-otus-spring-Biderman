@@ -7,13 +7,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.acls.domain.EhCacheBasedAclCache;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.repositories.BookRepository;
@@ -23,8 +24,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("Test")
-@SpringBootTest
+@SpringBootTest(properties = {"spring.main.allow-bean-definition-overriding=true"})
 @DisplayName("Сервис прав на просмотр книг ")
 class AvailabilityForMinorsServiceImplTest {
     @Autowired
@@ -35,6 +35,16 @@ class AvailabilityForMinorsServiceImplTest {
 
     @TestConfiguration
     static class TestConfig {
+        @Primary
+        @Bean
+        public EhCacheManagerFactoryBean aclCacheManager() {
+            EhCacheManagerFactoryBean factoryBean = new EhCacheManagerFactoryBean();
+            factoryBean.setShared(false);
+            factoryBean.setAcceptExisting(true);
+            return factoryBean;
+        }
+
+        @Primary
         @Bean
         public JdbcMutableAclService aclService(DataSource dataSource, LookupStrategy lookupStrategy, EhCacheBasedAclCache aclCache) {
             return new JdbcMutableAclService(dataSource, lookupStrategy, aclCache);

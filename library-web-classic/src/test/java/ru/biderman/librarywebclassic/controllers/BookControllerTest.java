@@ -4,9 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,6 +43,9 @@ class BookControllerTest {
 
     @MockBean(name = "availabilityForMinorsService")
     AvailabilityForMinorsService availabilityForMinorsService;
+
+    @MockBean
+    UserDetailsService userDetailsService;
 
     private static final long BOOK_ID = 100;
     private static final long AUTHOR_ID = 200;
@@ -168,14 +174,16 @@ class BookControllerTest {
 
     @DisplayName("должен принимать данные о книге")
     @WithMockAdmin
-    @Test
-    void shouldReceivePostedNewBook() throws Exception{
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void shouldReceivePostedNewBook(boolean adultOnly) throws Exception{
         Book book = mock(Book.class);
-        boolean adultOnly = true;
+        BookDto bookDto = mock(BookDto.class);
+        when(bookDto.getBook()).thenReturn(book);
+        when(bookDto.isAdultOnly()).thenReturn(adultOnly);
 
         mockMvc.perform(post("/books/edit")
-                        .flashAttr("book", book)
-                        .flashAttr("adultOnly", adultOnly)
+                        .flashAttr("book", bookDto)
                         .with(csrf())
                 )
                 .andExpect(status().is3xxRedirection())
