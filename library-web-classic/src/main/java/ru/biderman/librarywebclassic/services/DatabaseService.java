@@ -10,7 +10,7 @@ import ru.biderman.librarywebclassic.services.exceptions.DeleteAuthorException;
 import java.util.List;
 
 public interface DatabaseService {
-    void saveBook(Book book);
+    void saveBook(Book book, boolean adultOnly);
     void deleteBookById(long id);
     List<Book> getAllBooks();
     Book getBookById(long id) throws BookNotFoundException;

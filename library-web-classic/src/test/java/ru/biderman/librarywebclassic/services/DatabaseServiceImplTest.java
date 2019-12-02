@@ -42,8 +42,9 @@ class DatabaseServiceImplTest {
         @Test
         void shouldAdd() {
             Book book = mock(Book.class);
-            databaseService.saveBook(book);
-            verify(bookService).save(book);
+            boolean adultOnly = true;
+            databaseService.saveBook(book, adultOnly);
+            verify(bookService).save(book, adultOnly);
         }
 
         @DisplayName("должен удалять книгу по id")

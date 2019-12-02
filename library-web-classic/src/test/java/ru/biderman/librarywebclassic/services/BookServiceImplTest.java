@@ -21,11 +21,13 @@ import static org.mockito.Mockito.*;
 class BookServiceImplTest {
     private BookRepository bookRepository;
     private BookService bookService;
+    private AvailabilityForMinorsService availabilityForMinorsService;
 
     @BeforeEach
     void initBookDao() {
         bookRepository = mock(BookRepository.class);
-        bookService = new BookServiceImpl(bookRepository);
+        availabilityForMinorsService = mock(AvailabilityForMinorsService.class);
+        bookService = new BookServiceImpl(bookRepository, availabilityForMinorsService);
     }
 
     @DisplayName("должен возвращать всех")
@@ -57,8 +59,9 @@ class BookServiceImplTest {
     @Test
     void shouldSaveBook() {
         Book book = mock(Book.class);
-        bookService.save(book);
+        bookService.save(book, true);
         verify(bookRepository).save(book);
+        verify(availabilityForMinorsService).setRights(book, true);
     }
 
     @DisplayName("должен удалять книгу")

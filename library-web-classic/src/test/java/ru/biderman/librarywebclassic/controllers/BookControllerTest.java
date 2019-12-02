@@ -4,15 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.biderman.librarywebclassic.domain.Author;
 import ru.biderman.librarywebclassic.domain.Book;
 import ru.biderman.librarywebclassic.domain.Genre;
+import ru.biderman.librarywebclassic.services.AvailabilityForMinorsService;
 import ru.biderman.librarywebclassic.services.DatabaseService;
 import ru.biderman.librarywebclassic.services.exceptions.BookNotFoundException;
 
@@ -21,6 +25,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,6 +41,12 @@ class BookControllerTest {
     @MockBean
     DatabaseService databaseService;
 
+    @MockBean(name = "availabilityForMinorsService")
+    AvailabilityForMinorsService availabilityForMinorsService;
+
+    @MockBean
+    UserDetailsService userDetailsService;
+
     private static final long BOOK_ID = 100;
     private static final long AUTHOR_ID = 200;
     private static final String AUTHOR_SURNAME = "Author-surname";
@@ -49,6 +60,11 @@ class BookControllerTest {
                 Collections.singletonList(new Author(AUTHOR_ID, AUTHOR_SURNAME, AUTHOR_NAME)),
                 NEW_BOOK_TITLE,
                 Collections.singleton(new Genre(GENRE_ID, GENRE)));
+    }
+
+    @BeforeEach
+    void initMinorAvailabilityService() {
+        when(availabilityForMinorsService.isAdultOnly(any())).thenReturn(false);
     }
 
     @DisplayName("должен возвращать список всех книг для админа")
@@ -158,16 +174,23 @@ class BookControllerTest {
 
     @DisplayName("должен принимать данные о книге")
     @WithMockAdmin
-    @Test
-    void shouldReceivePostedNewBook() throws Exception{
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void shouldReceivePostedNewBook(boolean adultOnly) throws Exception{
         Book book = mock(Book.class);
+        BookDto bookDto = mock(BookDto.class);
+        when(bookDto.getBook()).thenReturn(book);
+        when(bookDto.isAdultOnly()).thenReturn(adultOnly);
 
-        mockMvc.perform(post("/books/edit").flashAttr("book", book).with(csrf()))
+        mockMvc.perform(post("/books/edit")
+                        .flashAttr("book", bookDto)
+                        .with(csrf())
+                )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"))
                 .andReturn();
 
-        verify(databaseService).saveBook(book);
+        verify(databaseService).saveBook(book, adultOnly);
     }
 
     @DisplayName("должен показывать форму для удаления книги")

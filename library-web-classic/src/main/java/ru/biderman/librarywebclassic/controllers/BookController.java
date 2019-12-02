@@ -36,8 +36,8 @@ public class BookController {
     }
 
     @PostMapping("books/edit")
-    public String postBookEditForm(@ModelAttribute Book book) {
-        databaseService.saveBook(book);
+    public String postBookEditForm(@ModelAttribute("book") BookDto bookDto) {
+        databaseService.saveBook(bookDto.getBook(), bookDto.isAdultOnly());
         return "redirect:/";
     }
 
