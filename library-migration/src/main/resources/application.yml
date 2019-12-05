@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:postgresql:otus-library-web
+    username: springuser
+    password: 123
+
+  data:
+    mongodb:
+      uri: mongodb://localhost
+      port: 27017
+      database: library-migration
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  batch:
+    job:
+      enabled: true
+
+    initialize-schema: always
