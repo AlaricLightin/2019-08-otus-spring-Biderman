@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  data:
+    mongodb:
+      port: 0
+      database: test
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  batch:
+    job:
+      enabled: false
