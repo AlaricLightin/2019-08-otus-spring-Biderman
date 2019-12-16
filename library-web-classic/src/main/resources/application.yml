@@ -16,3 +16,21 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,logfile
+
+  endpoint:
+    logfile:
+      enabled: true
+
+    health:
+      show-details: when_authorized
+      show-components: always
+
+logging:
+  file:
+    path: logs

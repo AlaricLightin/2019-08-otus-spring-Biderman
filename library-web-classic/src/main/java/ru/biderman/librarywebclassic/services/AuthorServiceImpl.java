@@ -55,4 +55,9 @@ class AuthorServiceImpl implements AuthorService{
     public List<Long> getUsedAuthorIdList() {
         return authorRepository.getUsedAuthorIdList();
     }
+
+    @Override
+    public long getCount() {
+        return authorRepository.count();
+    }
 }

@@ -71,4 +71,12 @@ class BookServiceImplTest {
         bookService.deleteById(BOOK_ID);
         verify(bookRepository).deleteById(BOOK_ID);
     }
+
+    @DisplayName("должен возвращать количество книг")
+    @Test
+    void shouldGetCount() {
+        final long bookCount = 20;
+        when(bookRepository.count()).thenReturn(bookCount);
+        assertThat(bookService.getCount()).isEqualTo(bookCount);
+    }
 }

@@ -10,4 +10,5 @@ public interface BookService {
     void deleteById(long id);
     List<Book> getAllBooks();
     Book getBookById(long id) throws BookNotFoundException;
+    long getCount();
 }

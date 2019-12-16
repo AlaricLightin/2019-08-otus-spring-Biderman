@@ -22,4 +22,7 @@ public interface DatabaseService {
     Author findAuthorById(long id) throws AuthorNotFoundException;
 
     List<Genre> getAllGenres();
+
+    long getBookCount();
+    long getAuthorCount();
 }

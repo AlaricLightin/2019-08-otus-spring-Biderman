@@ -71,4 +71,14 @@ public class DatabaseServiceImpl implements DatabaseService {
     public List<Genre> getAllGenres() {
         return genreService.getAllGenres();
     }
+
+    @Override
+    public long getBookCount() {
+        return bookService.getCount();
+    }
+
+    @Override
+    public long getAuthorCount() {
+        return authorService.getCount();
+    }
 }
