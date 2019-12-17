@@ -94,4 +94,12 @@ class AuthorServiceImplTest {
         when(authorRepository.getUsedAuthorIdList()).thenReturn(resultList);
         assertThat(authorService.getUsedAuthorIdList()).isEqualTo(resultList);
     }
+
+    @DisplayName("должен возвращать общее число авторов")
+    @Test
+    void shouldGetCount() {
+        final long authorCount = 10;
+        when(authorRepository.count()).thenReturn(authorCount);
+        assertThat(authorService.getCount()).isEqualTo(authorCount);
+    }
 }

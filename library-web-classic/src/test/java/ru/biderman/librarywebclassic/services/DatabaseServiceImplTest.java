@@ -74,6 +74,14 @@ class DatabaseServiceImplTest {
             when(bookService.getBookById(bookId)).thenReturn(book);
             assertThat(databaseService.getBookById(bookId)).isEqualTo(book);
         }
+
+        @DisplayName("должен возвращать количество книг")
+        @Test
+        void shouldGetBookCount() {
+            final long bookCount = 21;
+            when(bookService.getCount()).thenReturn(bookCount);
+            assertThat(databaseService.getBookCount()).isEqualTo(bookCount);
+        }
     }
 
     @Nested
@@ -147,6 +155,14 @@ class DatabaseServiceImplTest {
             final long id = 100;
             doThrow(AuthorNotFoundException.class).when(authorService).findById(id);
             assertThrows(AuthorNotFoundException.class, () -> databaseService.findAuthorById(id));
+        }
+
+        @DisplayName("должен возвращать количество авторов")
+        @Test
+        void shouldGetCount() {
+            final long authorCount = 11;
+            when(authorService.getCount()).thenReturn(authorCount);
+            assertThat(databaseService.getAuthorCount()).isEqualTo(authorCount);
         }
     }
 

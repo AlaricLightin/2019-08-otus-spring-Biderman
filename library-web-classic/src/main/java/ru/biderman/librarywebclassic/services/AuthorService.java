@@ -13,4 +13,5 @@ public interface AuthorService {
     List<Author> getAllAuthors();
     Author findById(long id) throws AuthorNotFoundException;
     List<Long> getUsedAuthorIdList();
+    long getCount();
 }

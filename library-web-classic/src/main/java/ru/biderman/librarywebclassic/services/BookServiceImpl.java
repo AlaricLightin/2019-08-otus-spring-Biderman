@@ -36,4 +36,9 @@ class BookServiceImpl implements BookService {
     public Book getBookById(long id) throws BookNotFoundException{
         return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
     }
+
+    @Override
+    public long getCount() {
+        return bookRepository.count();
+    }
 }
