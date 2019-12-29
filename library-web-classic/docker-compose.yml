@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+    db:
+        container_name: pg_library_container        
+        image: postgres:12-alpine
+        restart: always
+        environment:
+            POSTGRES_DB: otus-library-web
+            POSTGRES_USER: springuser
+            POSTGRES_PASSWORD: 123
+        ports: 
+            - "5432:5432"
+
+    spring:
+        build:
+            context: .
+        container_name: library
+        restart: always
+        ports:
+            - "8080:8080"
+        depends_on:
+            - db
