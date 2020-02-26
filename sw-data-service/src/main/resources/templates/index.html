@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Star Wars Episodes Info</title>
+</head>
+<body>
+    <form action="#" th:action="@{/}" method="post">
+        <label for="number-edit">Input film number:</label>
+        <input id="number-edit" type="text" name="id" th:value="${id}">
+        <input type="submit" value="Submit">
+    </form>
+
+    <th:block th:if="${showDetails}">
+        <th:block th:if="${film != null}">
+            <p>Title: <span th:text="${film.title}">Episode title</span></p>
+            <p>Director: <span th:text="${film.director}">Director name</span></p>
+            <p>Release date: <span th:text="${film.releaseDate}">2000.05.05</span></p>
+
+            <th:block th:if="${film.characterList.size() > 0}">
+                <p>Character List</p>
+                <ul>
+                    <li th:each="character: ${film.characterList}" th:text="${character.name}">Character Name</li>
+                </ul>
+            </th:block>
+            <p th:if="${film.characterList.size() == 0}">Cannot get characters data.</p>
+        </th:block>
+        <p th:if="${film == null}">Film not found</p>
+    </th:block>
+</body>
+</html>
